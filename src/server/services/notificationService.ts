@@ -1,6 +1,7 @@
 import type { Timestamp } from "firebase-admin/firestore";
 import { db } from "@/server/config/firebase";
 import { COLLECTIONS, type Role } from "@/lib/shared";
+import { ApiError } from "@/server/lib/apiError";
 import type { PageParams } from "@/server/lib/pagination";
 import { serializeNotification } from "@/server/lib/serializers";
 import type { NotificationDocument } from "@/server/types/firestore";
@@ -48,4 +49,21 @@ export async function listMyNotifications(
 
 export async function markNotificationRead(notificationId: string) {
   await db.collection(COLLECTIONS.NOTIFICATIONS).doc(notificationId).update({ isRead: true });
+}
+
+/**
+ * Same as markNotificationRead, but confirms the notification is actually
+ * addressed to the caller (by uid or broadcast role) first — used where a
+ * caller could otherwise guess another user's notification id.
+ */
+export async function markMyNotificationRead(uid: string, role: Role, notificationId: string) {
+  const ref = db.collection(COLLECTIONS.NOTIFICATIONS).doc(notificationId);
+  const snap = await ref.get();
+  if (!snap.exists) throw ApiError.notFound("Notification not found");
+
+  const notification = snap.data() as NotificationDocument;
+  const isMine = notification.recipientId === uid || notification.recipientRole === role;
+  if (!isMine) throw ApiError.forbidden("This notification does not belong to you");
+
+  await ref.update({ isRead: true });
 }

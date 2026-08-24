@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { QueryStates } from "@/components/platform-admin/QueryStates";
+import { QueryStates } from "@/components/ui/QueryStates";
 
 describe("QueryStates (loading and error states)", () => {
   it("shows a loading indicator and hides children while isLoading", () => {

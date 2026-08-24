@@ -11,6 +11,8 @@ export * from "./roles";
 export * from "./verification-status";
 export * from "./salon-status";
 export * from "./salon-category";
+export * from "./booking-status";
+export * from "./working-hours";
 export * from "./notifications";
 export * from "./audit";
 export * from "./api-errors";

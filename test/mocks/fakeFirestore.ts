@@ -146,6 +146,8 @@ interface FakeDocRef {
   set(data: DocData, options?: { merge?: boolean }): Promise<void>;
   update(data: DocData): Promise<void>;
   delete(): Promise<void>;
+  /** Subcollections are just flat-namespaced collections keyed by parent path, matching how `collections` is already stored. */
+  collection(name: string): FakeCollectionRef;
 }
 
 function makeDocRef(collectionName: string, id: string): FakeDocRef {
@@ -168,6 +170,9 @@ function makeDocRef(collectionName: string, id: string): FakeDocRef {
     },
     async delete() {
       fakeStore.deleteDoc(collectionName, id);
+    },
+    collection(name: string) {
+      return new FakeCollectionRef(`${collectionName}/${id}/${name}`);
     },
   };
 }

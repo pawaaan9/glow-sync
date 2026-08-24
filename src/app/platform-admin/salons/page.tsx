@@ -1,8 +1,8 @@
 "use client";
 
-import { Pagination } from "@/components/platform-admin/Pagination";
-import { QueryStates } from "@/components/platform-admin/QueryStates";
-import { ReasonModal } from "@/components/platform-admin/ReasonModal";
+import { Pagination } from "@/components/ui/Pagination";
+import { QueryStates } from "@/components/ui/QueryStates";
+import { ReasonModal } from "@/components/ui/ReasonModal";
 import { Input } from "@/components/ui/Input";
 import { useSalons, useSuspendSalon } from "@/hooks/use-platform-admin";
 import { SALON_STATUS, SALON_CATEGORY_LABELS } from "@/lib/shared";

@@ -1,10 +1,14 @@
 import { apiGet, apiPatch } from "@/lib/api/http";
 import type { NotificationDTO, PaginatedResult } from "@/lib/shared";
 
-export function listMyNotifications(query: Record<string, string | number | undefined> = {}) {
-  return apiGet<PaginatedResult<NotificationDTO>>("/api/platform-admin/notifications", query);
+/** Both platform-admin and salon-owner expose the same notifications shape at their own base path. */
+export function listMyNotifications(
+  basePath: string,
+  query: Record<string, string | number | undefined> = {},
+) {
+  return apiGet<PaginatedResult<NotificationDTO>>(`${basePath}/notifications`, query);
 }
 
-export function markNotificationRead(notificationId: string) {
-  return apiPatch(`/api/platform-admin/notifications/${notificationId}/read`);
+export function markNotificationRead(basePath: string, notificationId: string) {
+  return apiPatch(`${basePath}/notifications/${notificationId}/read`);
 }

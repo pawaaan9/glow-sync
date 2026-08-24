@@ -1,7 +1,7 @@
 "use client";
 
-import { Pagination } from "@/components/platform-admin/Pagination";
-import { QueryStates } from "@/components/platform-admin/QueryStates";
+import { Pagination } from "@/components/ui/Pagination";
+import { QueryStates } from "@/components/ui/QueryStates";
 import { useAuditLogs } from "@/hooks/use-platform-admin";
 import { useState } from "react";
 

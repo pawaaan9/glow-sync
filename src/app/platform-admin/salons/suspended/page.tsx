@@ -1,8 +1,8 @@
 "use client";
 
-import { Pagination } from "@/components/platform-admin/Pagination";
-import { QueryStates } from "@/components/platform-admin/QueryStates";
-import { ConfirmDialog } from "@/components/platform-admin/ConfirmDialog";
+import { Pagination } from "@/components/ui/Pagination";
+import { QueryStates } from "@/components/ui/QueryStates";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useReactivateSalon, useSalons } from "@/hooks/use-platform-admin";
 import { SALON_STATUS } from "@/lib/shared";
 import { Eye, RotateCcw } from "lucide-react";

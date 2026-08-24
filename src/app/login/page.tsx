@@ -15,7 +15,6 @@ export default function LoginPage() {
       title="Log in to your glow"
       subtitle="Pick up where you left off — your bookings, favourites, and rebooks are waiting."
       aside={{
-        image: "https://picsum.photos/seed/rose-atelier-cover/900/1200",
         quote: "Booking takes twenty seconds and I have never lost a slot again.",
         author: "Priya S.",
         role: "GlowSync member since 2024",

@@ -1,8 +1,8 @@
 "use client";
 
-import { ConfirmDialog } from "@/components/platform-admin/ConfirmDialog";
-import { QueryStates } from "@/components/platform-admin/QueryStates";
-import { ReasonModal } from "@/components/platform-admin/ReasonModal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { QueryStates } from "@/components/ui/QueryStates";
+import { ReasonModal } from "@/components/ui/ReasonModal";
 import { StatusBadge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {

@@ -15,7 +15,6 @@ export default function RegisterPage() {
       title="Create your account"
       subtitle="Book treatments, follow your favourite artists, and never miss a slot."
       aside={{
-        image: "https://picsum.photos/seed/serenity-cover/900/1200",
         quote: "Listing my studio on GlowSync filled every empty chair in a month.",
         author: "Amara Chen",
         role: "Owner, The Rose Atelier",

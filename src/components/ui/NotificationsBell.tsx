@@ -5,10 +5,10 @@ import { cn } from "@/lib/utils";
 import { Bell, CheckCheck } from "lucide-react";
 import { useState } from "react";
 
-export function NotificationsBell() {
+export function NotificationsBell({ basePath }: { basePath: string }) {
   const [open, setOpen] = useState(false);
-  const { data } = useMyNotifications();
-  const markRead = useMarkNotificationRead();
+  const { data } = useMyNotifications(basePath);
+  const markRead = useMarkNotificationRead(basePath);
 
   const items = data?.items ?? [];
   const unreadCount = items.filter((n) => !n.isRead).length;

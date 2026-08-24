@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { ConfirmDialog } from "@/components/platform-admin/ConfirmDialog";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 describe("ConfirmDialog (approval confirmation)", () => {
   it("does not call onConfirm just from opening — a click is required", () => {

@@ -4,6 +4,8 @@ import type { SalonStatus } from "./salon-status";
 import type { SalonCategory } from "./salon-category";
 import type { NotificationType } from "./notifications";
 import type { AuditAction, VerificationHistoryAction } from "./audit";
+import type { BookingSource, BookingStatus } from "./booking-status";
+import type { SalonClosure, SpecialDayHours, WeeklyHours } from "./working-hours";
 
 /**
  * Wire-format DTOs: what crosses the HTTP boundary between the backend and
@@ -28,6 +30,24 @@ export interface UserDTO {
   verifiedBy: string | null;
 }
 
+export interface SalonSocialLinks {
+  instagram: string | null;
+  facebook: string | null;
+  tiktok: string | null;
+  website: string | null;
+}
+
+export interface SalonBookingSettings {
+  /** Minimum minutes of notice required before a booking's start time. */
+  noticePeriodMinutes: number;
+  /** How many days out a customer may book in advance. */
+  maxAdvanceDays: number;
+  /** Calendar slot granularity in minutes. */
+  slotIntervalMinutes: number;
+  /** Hours before the appointment a customer may still cancel penalty-free. */
+  cancellationWindowHours: number;
+}
+
 export interface SalonDTO {
   id: string;
   ownerId: string;
@@ -35,14 +55,28 @@ export interface SalonDTO {
   slug: string;
   businessPhone: string;
   businessEmail: string;
+  whatsappNumber: string | null;
   address: string;
   city: string;
   district: string;
+  googleMapsUrl: string | null;
   businessRegistrationNumber: string | null;
   description: string;
   category: SalonCategory;
   numberOfStaff: number;
   logoUrl: string | null;
+  coverImageUrl: string | null;
+  galleryUrls: string[];
+  facilities: string[];
+  languages: string[];
+  socialLinks: SalonSocialLinks;
+  bookingInstructions: string | null;
+  cancellationPolicy: string | null;
+  depositPolicy: string | null;
+  weeklyHours: WeeklyHours;
+  specialHours: SpecialDayHours[];
+  closures: SalonClosure[];
+  bookingSettings: SalonBookingSettings;
   hasVerificationDocument: boolean;
   status: SalonStatus;
   rejectionReason: string | null;
@@ -116,5 +150,144 @@ export interface PlatformAdminDashboardDTO {
     applicationsThisMonth: number;
   };
   recentApplications: SalonDTO[];
+  recentActivity: AuditLogDTO[];
+}
+
+/* ------------------------------------------------------------------ */
+/* Salon-owner panel: services, staff, customers, bookings, time off. */
+/* ------------------------------------------------------------------ */
+
+export interface ServiceDTO {
+  id: string;
+  salonId: string;
+  name: string;
+  category: string;
+  description: string;
+  durationMinutes: number;
+  priceLkr: number;
+  discountedPriceLkr: number | null;
+  depositLkr: number | null;
+  assignedStaffIds: string[];
+  isActive: boolean;
+  /** True once at least one booking has referenced this service — blocks hard deletion. */
+  hasBookingHistory: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StaffBreak {
+  start: string;
+  end: string;
+}
+
+export interface StaffDayAvailability {
+  isWorking: boolean;
+  start: string;
+  end: string;
+  breaks: StaffBreak[];
+}
+
+export type StaffWeeklyAvailability = Record<
+  "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun",
+  StaffDayAvailability
+>;
+
+export interface StaffDTO {
+  id: string;
+  salonId: string;
+  fullName: string;
+  phone: string;
+  email: string | null;
+  photoUrl: string | null;
+  jobTitle: string;
+  bio: string | null;
+  assignedServiceIds: string[];
+  weeklyAvailability: StaffWeeklyAvailability;
+  isActive: boolean;
+  canAcceptBookings: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CustomerDTO {
+  id: string;
+  salonId: string;
+  fullName: string;
+  phone: string;
+  email: string | null;
+  lastVisitAt: string | null;
+  nextBookingAt: string | null;
+  totalAppointments: number;
+  totalSpendLkr: number;
+  cancellationCount: number;
+  noShowCount: number;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BookingHistoryEntryDTO {
+  status: BookingStatus;
+  changedAt: string;
+  changedBy: string;
+  note: string | null;
+}
+
+export interface BookingDTO {
+  id: string;
+  salonId: string;
+  customerId: string | null;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string | null;
+  serviceId: string;
+  /** Snapshot at booking time — never mutated afterward, even if the service later changes. */
+  serviceName: string;
+  serviceDurationMinutes: number;
+  servicePriceLkr: number;
+  staffId: string | null;
+  /** Snapshot at assignment time. */
+  staffName: string | null;
+  status: BookingStatus;
+  source: BookingSource;
+  startAt: string;
+  endAt: string;
+  internalNotes: string | null;
+  declineReason: string | null;
+  cancellationReason: string | null;
+  history: BookingHistoryEntryDTO[];
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+}
+
+export interface TimeOffDTO {
+  id: string;
+  salonId: string;
+  /** null = whole-salon blocked time; set = one staff member's leave. */
+  staffId: string | null;
+  startAt: string;
+  endAt: string;
+  reason: string;
+  createdAt: string;
+  createdBy: string;
+}
+
+export interface SalonOwnerDashboardDTO {
+  counts: {
+    todayBookings: number;
+    pendingRequests: number;
+    awaitingStaffAcceptance: number;
+    confirmed: number;
+    completedThisMonth: number;
+    cancelledThisMonth: number;
+    activeStaff: number;
+    activeServices: number;
+  };
+  revenue: {
+    todayLkr: number;
+    monthLkr: number;
+  };
+  upcomingAppointments: BookingDTO[];
   recentActivity: AuditLogDTO[];
 }

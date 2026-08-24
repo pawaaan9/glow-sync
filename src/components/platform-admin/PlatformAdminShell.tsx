@@ -1,8 +1,8 @@
 "use client";
 
 import { FullPageLoader } from "@/components/auth/FullPageLoader";
-import { ConfirmDialog } from "@/components/platform-admin/ConfirmDialog";
-import { NotificationsBell } from "@/components/platform-admin/NotificationsBell";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { NotificationsBell } from "@/components/ui/NotificationsBell";
 import { SuperAdminLogin } from "@/components/platform-admin/SuperAdminLogin";
 import { usePlatformAdminDashboard } from "@/hooks/use-platform-admin";
 import { ROLES } from "@/lib/shared";
@@ -283,7 +283,7 @@ export function PlatformAdminShell({ children }: { children: ReactNode }) {
           </button>
           <span className="font-display hidden text-lg text-ink lg:block">Platform Admin</span>
           <div className="ml-auto flex items-center gap-2">
-            <NotificationsBell />
+            <NotificationsBell basePath="/api/platform-admin" />
           </div>
         </header>
 

@@ -1,11 +1,28 @@
 import type { Timestamp, FieldValue } from "firebase-admin/firestore";
-import type { UserDTO, SalonDTO, SalonVerificationHistoryDTO, AuditLogDTO, NotificationDTO } from "@/lib/shared";
+import { defaultWeeklyHours } from "@/lib/shared";
+import type {
+  UserDTO,
+  SalonDTO,
+  SalonVerificationHistoryDTO,
+  AuditLogDTO,
+  NotificationDTO,
+  ServiceDTO,
+  StaffDTO,
+  CustomerDTO,
+  BookingDTO,
+  TimeOffDTO,
+} from "@/lib/shared";
 import type {
   UserDocument,
   SalonDocument,
   SalonVerificationHistoryDocument,
   AuditLogDocument,
   NotificationDocument,
+  ServiceDocument,
+  StaffDocument,
+  CustomerDocument,
+  BookingDocument,
+  TimeOffDocument,
 } from "@/server/types/firestore";
 
 /**
@@ -45,6 +62,7 @@ export function serializeUser(doc: UserDocument): UserDTO {
   };
 }
 
+/** salons/{salonId} documents created before the owner panel shipped are missing these — default them. */
 export function serializeSalon(doc: SalonDocument): SalonDTO {
   return {
     id: doc.id,
@@ -53,14 +71,33 @@ export function serializeSalon(doc: SalonDocument): SalonDTO {
     slug: doc.slug,
     businessPhone: doc.businessPhone,
     businessEmail: doc.businessEmail,
+    whatsappNumber: doc.whatsappNumber ?? null,
     address: doc.address,
     city: doc.city,
     district: doc.district,
+    googleMapsUrl: doc.googleMapsUrl ?? null,
     businessRegistrationNumber: doc.businessRegistrationNumber,
     description: doc.description,
     category: doc.category,
     numberOfStaff: doc.numberOfStaff,
     logoUrl: doc.logoUrl,
+    coverImageUrl: doc.coverImageUrl ?? null,
+    galleryUrls: doc.galleryUrls ?? [],
+    facilities: doc.facilities ?? [],
+    languages: doc.languages ?? [],
+    socialLinks: doc.socialLinks ?? { instagram: null, facebook: null, tiktok: null, website: null },
+    bookingInstructions: doc.bookingInstructions ?? null,
+    cancellationPolicy: doc.cancellationPolicy ?? null,
+    depositPolicy: doc.depositPolicy ?? null,
+    weeklyHours: doc.weeklyHours ?? defaultWeeklyHours(),
+    specialHours: doc.specialHours ?? [],
+    closures: doc.closures ?? [],
+    bookingSettings: doc.bookingSettings ?? {
+      noticePeriodMinutes: 60,
+      maxAdvanceDays: 30,
+      slotIntervalMinutes: 15,
+      cancellationWindowHours: 12,
+    },
     hasVerificationDocument: Boolean(doc.verificationDocumentPath),
     status: doc.status,
     rejectionReason: doc.rejectionReason,
@@ -112,5 +149,108 @@ export function serializeNotification(doc: NotificationDocument): NotificationDT
     relatedSalonId: doc.relatedSalonId,
     isRead: doc.isRead,
     createdAt: toIsoRequired(doc.createdAt),
+  };
+}
+
+export function serializeService(doc: ServiceDocument): ServiceDTO {
+  return {
+    id: doc.id,
+    salonId: doc.salonId,
+    name: doc.name,
+    category: doc.category,
+    description: doc.description,
+    durationMinutes: doc.durationMinutes,
+    priceLkr: doc.priceLkr,
+    discountedPriceLkr: doc.discountedPriceLkr,
+    depositLkr: doc.depositLkr,
+    assignedStaffIds: doc.assignedStaffIds,
+    isActive: doc.isActive,
+    hasBookingHistory: doc.hasBookingHistory,
+    createdAt: toIsoRequired(doc.createdAt),
+    updatedAt: toIsoRequired(doc.updatedAt),
+  };
+}
+
+export function serializeStaff(doc: StaffDocument): StaffDTO {
+  return {
+    id: doc.id,
+    salonId: doc.salonId,
+    fullName: doc.fullName,
+    phone: doc.phone,
+    email: doc.email,
+    photoUrl: doc.photoUrl,
+    jobTitle: doc.jobTitle,
+    bio: doc.bio,
+    assignedServiceIds: doc.assignedServiceIds,
+    weeklyAvailability: doc.weeklyAvailability,
+    isActive: doc.isActive,
+    canAcceptBookings: doc.canAcceptBookings,
+    createdAt: toIsoRequired(doc.createdAt),
+    updatedAt: toIsoRequired(doc.updatedAt),
+  };
+}
+
+export function serializeCustomer(doc: CustomerDocument): CustomerDTO {
+  return {
+    id: doc.id,
+    salonId: doc.salonId,
+    fullName: doc.fullName,
+    phone: doc.phone,
+    email: doc.email,
+    lastVisitAt: toIso(doc.lastVisitAt),
+    nextBookingAt: toIso(doc.nextBookingAt),
+    totalAppointments: doc.totalAppointments,
+    totalSpendLkr: doc.totalSpendLkr,
+    cancellationCount: doc.cancellationCount,
+    noShowCount: doc.noShowCount,
+    notes: doc.notes,
+    createdAt: toIsoRequired(doc.createdAt),
+    updatedAt: toIsoRequired(doc.updatedAt),
+  };
+}
+
+export function serializeBooking(doc: BookingDocument): BookingDTO {
+  return {
+    id: doc.id,
+    salonId: doc.salonId,
+    customerId: doc.customerId,
+    customerName: doc.customerName,
+    customerPhone: doc.customerPhone,
+    customerEmail: doc.customerEmail,
+    serviceId: doc.serviceId,
+    serviceName: doc.serviceName,
+    serviceDurationMinutes: doc.serviceDurationMinutes,
+    servicePriceLkr: doc.servicePriceLkr,
+    staffId: doc.staffId,
+    staffName: doc.staffName,
+    status: doc.status,
+    source: doc.source,
+    startAt: toIsoRequired(doc.startAt),
+    endAt: toIsoRequired(doc.endAt),
+    internalNotes: doc.internalNotes,
+    declineReason: doc.declineReason,
+    cancellationReason: doc.cancellationReason,
+    history: doc.history.map((h) => ({
+      status: h.status,
+      changedAt: toIsoRequired(h.changedAt),
+      changedBy: h.changedBy,
+      note: h.note,
+    })),
+    createdAt: toIsoRequired(doc.createdAt),
+    updatedAt: toIsoRequired(doc.updatedAt),
+    createdBy: doc.createdBy,
+  };
+}
+
+export function serializeTimeOff(doc: TimeOffDocument): TimeOffDTO {
+  return {
+    id: doc.id,
+    salonId: doc.salonId,
+    staffId: doc.staffId,
+    startAt: toIsoRequired(doc.startAt),
+    endAt: toIsoRequired(doc.endAt),
+    reason: doc.reason,
+    createdAt: toIsoRequired(doc.createdAt),
+    createdBy: doc.createdBy,
   };
 }

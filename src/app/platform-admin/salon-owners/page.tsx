@@ -1,7 +1,7 @@
 "use client";
 
-import { Pagination } from "@/components/platform-admin/Pagination";
-import { QueryStates } from "@/components/platform-admin/QueryStates";
+import { Pagination } from "@/components/ui/Pagination";
+import { QueryStates } from "@/components/ui/QueryStates";
 import { StatusBadge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { useSalonOwners } from "@/hooks/use-platform-admin";

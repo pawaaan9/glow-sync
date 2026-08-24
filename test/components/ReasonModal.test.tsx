@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { ReasonModal } from "@/components/platform-admin/ReasonModal";
+import { ReasonModal } from "@/components/ui/ReasonModal";
 
 describe("ReasonModal (rejection/suspension-reason validation)", () => {
   it("blocks submission and shows an error when the reason is empty", async () => {
