@@ -15,13 +15,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
-          <label htmlFor={inputId} className="text-sm font-medium text-neutral-800">
+          <label
+            htmlFor={inputId}
+            className="text-sm font-medium tracking-tight text-neutral-800"
+          >
             {label}
           </label>
         )}
-        <div className="relative">
+        <div className="group relative">
           {icon && (
-            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 transition-colors group-focus-within:text-rose-500">
               {icon}
             </span>
           )}
@@ -29,8 +32,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              "h-11 w-full rounded-xl border border-neutral-200 bg-white px-4 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors focus:border-rose-400 focus:ring-2 focus:ring-rose-100",
-              icon && "pl-10",
+              "h-12 w-full rounded-2xl border border-neutral-200 bg-white px-4 text-sm text-ink outline-none transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 focus:border-rose-400 focus:ring-4 focus:ring-rose-100",
+              icon && "pl-11",
               error && "border-red-400 focus:border-red-500 focus:ring-red-100",
               className,
             )}

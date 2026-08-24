@@ -37,21 +37,22 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
       aria-label={title}
     >
       <div
-        className="absolute inset-0 bg-neutral-900/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
         onClick={onClose}
       />
       <div
         className={cn(
-          "relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl",
+          "animate-rise relative max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-7 shadow-[0_40px_80px_-24px_rgba(27,20,32,0.4)]",
           className,
         )}
       >
-        <div className="mb-4 flex items-center justify-between">
-          {title && <h2 className="font-display text-xl text-neutral-900">{title}</h2>}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-1 rounded-t-3xl bg-linear-to-r from-rose-400 via-purple-400 to-amber-300" />
+        <div className="mb-5 flex items-center justify-between">
+          {title && <h2 className="font-display text-2xl text-ink">{title}</h2>}
           <button
             onClick={onClose}
             aria-label="Close"
-            className="ml-auto flex size-8 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800 cursor-pointer"
+            className="ml-auto flex size-9 cursor-pointer items-center justify-center rounded-full text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-ink"
           >
             <X className="size-5" />
           </button>

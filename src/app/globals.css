@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #241d24;
+  --background: #fffbfc;
+  --foreground: #1b1420;
 
   --color-rose-50: #fff1f4;
   --color-rose-100: #ffe1e8;
@@ -26,6 +26,18 @@
   --color-purple-800: #4e276b;
   --color-purple-900: #402259;
 
+  /* Warm amber accent — breaks the rose/purple duotone and carries "glow". */
+  --color-amber-50: #fff8ed;
+  --color-amber-100: #ffefd4;
+  --color-amber-200: #ffdba8;
+  --color-amber-300: #ffc071;
+  --color-amber-400: #ff9d38;
+  --color-amber-500: #fb7f12;
+  --color-amber-600: #ec6208;
+  --color-amber-700: #c34709;
+  --color-amber-800: #9b380f;
+  --color-amber-900: #7d3010;
+
   --color-neutral-50: #faf9fa;
   --color-neutral-100: #f3f1f3;
   --color-neutral-200: #e5e1e5;
@@ -36,11 +48,14 @@
   --color-neutral-700: #4a424b;
   --color-neutral-800: #322c33;
   --color-neutral-900: #201c21;
+
+  --color-ink: #1b1420;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-ink: var(--color-ink);
   --font-sans: var(--font-body);
   --font-display: var(--font-display);
 
@@ -66,6 +81,17 @@
   --color-purple-800: var(--color-purple-800);
   --color-purple-900: var(--color-purple-900);
 
+  --color-amber-50: var(--color-amber-50);
+  --color-amber-100: var(--color-amber-100);
+  --color-amber-200: var(--color-amber-200);
+  --color-amber-300: var(--color-amber-300);
+  --color-amber-400: var(--color-amber-400);
+  --color-amber-500: var(--color-amber-500);
+  --color-amber-600: var(--color-amber-600);
+  --color-amber-700: var(--color-amber-700);
+  --color-amber-800: var(--color-amber-800);
+  --color-amber-900: var(--color-amber-900);
+
   --color-neutral-50: var(--color-neutral-50);
   --color-neutral-100: var(--color-neutral-100);
   --color-neutral-200: var(--color-neutral-200);
@@ -76,18 +102,162 @@
   --color-neutral-700: var(--color-neutral-700);
   --color-neutral-800: var(--color-neutral-800);
   --color-neutral-900: var(--color-neutral-900);
+
+  --animate-drift: drift 22s ease-in-out infinite;
+  --animate-drift-slow: drift 34s ease-in-out infinite reverse;
+  --animate-marquee: marquee 38s linear infinite;
+  --animate-rise: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-shimmer: shimmer 2.6s linear infinite;
+  --animate-pulse-ring: pulse-ring 2.8s ease-out infinite;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-body), sans-serif;
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
+/*
+ * League Spartan is a geometric display face: it wants tight tracking and
+ * heavy weights to read as a headline rather than as oversized body copy.
+ */
 .font-display {
-  font-family: var(--font-display), serif;
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+}
+
+.font-display-tight {
+  letter-spacing: -0.045em;
+}
+
+/* Small all-caps label used above section headings. */
+.eyebrow {
+  font-family: var(--font-display), ui-sans-serif, sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.6875rem;
+}
+
+.text-gradient {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-rose-500) 0%,
+    var(--color-purple-500) 45%,
+    var(--color-amber-400) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Soft aurora field used behind hero and CTA sections. */
+.aurora {
+  background-image:
+    radial-gradient(48rem 26rem at 12% 8%, var(--color-rose-200) 0%, transparent 62%),
+    radial-gradient(42rem 24rem at 88% 4%, var(--color-purple-200) 0%, transparent 62%),
+    radial-gradient(38rem 22rem at 62% 92%, var(--color-amber-100) 0%, transparent 60%);
+}
+
+/* Subtle film grain so the large gradient fields don't band. */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.28'/%3E%3C/svg%3E");
+}
+
+.glass {
+  background-color: color-mix(in srgb, white 72%, transparent);
+  backdrop-filter: blur(16px) saturate(150%);
+}
+
+/* Gradient ring around a card without paying for a real border. */
+.ring-gradient {
+  background:
+    linear-gradient(white, white) padding-box,
+    linear-gradient(135deg, var(--color-rose-300), var(--color-purple-300), var(--color-amber-200))
+      border-box;
+  border: 1px solid transparent;
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(3rem, -2rem, 0) scale(1.12);
+  }
+  66% {
+    transform: translate3d(-2rem, 2.5rem, 0) scale(0.94);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 * {
   scrollbar-color: var(--color-rose-200) transparent;
+}
+
+::selection {
+  background: var(--color-rose-200);
+  color: var(--color-rose-900);
 }

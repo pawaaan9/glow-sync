@@ -3,20 +3,22 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-type Variant = "primary" | "secondary" | "outline" | "ghost" | "danger";
+type Variant = "primary" | "secondary" | "outline" | "ghost" | "danger" | "ink";
 type Size = "sm" | "md" | "lg";
 
 const variantStyles: Record<Variant, string> = {
   primary:
-    "bg-linear-to-r from-rose-500 to-purple-500 text-white shadow-sm hover:shadow-md hover:brightness-105 active:brightness-95",
-  secondary: "bg-rose-50 text-rose-700 hover:bg-rose-100",
-  outline: "border border-neutral-200 text-neutral-800 hover:border-rose-300 hover:bg-rose-50/50",
-  ghost: "text-neutral-700 hover:bg-neutral-100",
-  danger: "bg-red-600 text-white hover:bg-red-700",
+    "text-white shadow-[0_6px_20px_-8px_var(--color-rose-500)] bg-size-[200%_auto] bg-linear-to-r from-rose-500 via-purple-500 to-rose-500 hover:bg-right hover:shadow-[0_10px_28px_-8px_var(--color-purple-500)] active:scale-[0.98]",
+  secondary: "bg-rose-50 text-rose-700 hover:bg-rose-100 active:scale-[0.98]",
+  outline:
+    "border border-neutral-200 bg-white/60 text-neutral-800 backdrop-blur hover:border-rose-300 hover:bg-rose-50/60 active:scale-[0.98]",
+  ghost: "text-neutral-700 hover:bg-neutral-100 active:scale-[0.98]",
+  danger: "bg-red-600 text-white hover:bg-red-700 active:scale-[0.98]",
+  ink: "bg-ink text-white hover:bg-neutral-800 shadow-[0_6px_20px_-10px_var(--color-ink)] active:scale-[0.98]",
 };
 
 const sizeStyles: Record<Size, string> = {
-  sm: "h-9 px-3.5 text-sm gap-1.5",
+  sm: "h-9 px-4 text-sm gap-1.5",
   md: "h-11 px-5 text-sm gap-2",
   lg: "h-13 px-7 text-base gap-2",
 };
@@ -47,7 +49,7 @@ interface ButtonAsLink extends BaseProps {
 type ButtonProps = ButtonAsButton | ButtonAsLink;
 
 const baseClasses =
-  "inline-flex items-center justify-center rounded-full font-medium transition-all duration-150 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300 focus-visible:ring-offset-2 cursor-pointer";
+  "group/btn inline-flex items-center justify-center rounded-full font-medium tracking-tight transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:ring-offset-2 cursor-pointer";
 
 export function Button(props: ButtonProps) {
   const {
@@ -58,6 +60,7 @@ export function Button(props: ButtonProps) {
     icon,
     className,
     children,
+    ...rest
   } = props;
 
   const classes = cn(
@@ -68,22 +71,17 @@ export function Button(props: ButtonProps) {
     className,
   );
 
-  if ("href" in props && props.href) {
+  if ("href" in rest && rest.href) {
+    const { href, onClick, target, rel } = rest as ButtonAsLink;
     return (
-      <Link
-        href={props.href}
-        onClick={props.onClick}
-        target={props.target}
-        rel={props.rel}
-        className={classes}
-      >
+      <Link href={href} onClick={onClick} target={target} rel={rel} className={classes}>
         {loading ? <Loader2 className="size-4 animate-spin" /> : icon}
         {children}
       </Link>
     );
   }
 
-  const { type = "button", ...buttonProps } = props as ButtonAsButton;
+  const { type = "button", ...buttonProps } = rest as Omit<ButtonAsButton, keyof BaseProps>;
 
   return (
     <button
