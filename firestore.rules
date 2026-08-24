@@ -1,0 +1,31 @@
+rules_version = '2';
+
+// All reads and writes to this module's collections go through the
+// backend's Firebase Admin SDK, which enforces role/ownership/status
+// checks in code (see src/middleware/*) and always bypasses these rules.
+// Denying direct client access here is defense-in-depth: it stops anyone
+// from reading/writing users, super admins, salons, verification history,
+// audit logs, or notifications straight from the Firebase client SDK,
+// bypassing the backend's authorization entirely.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if false;
+    }
+    match /superAdmins/{adminId} {
+      allow read, write: if false;
+    }
+    match /salons/{salonId} {
+      allow read, write: if false;
+    }
+    match /salonVerificationHistory/{historyId} {
+      allow read, write: if false;
+    }
+    match /auditLogs/{auditLogId} {
+      allow read, write: if false;
+    }
+    match /notifications/{notificationId} {
+      allow read, write: if false;
+    }
+  }
+}

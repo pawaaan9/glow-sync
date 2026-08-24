@@ -9,12 +9,12 @@ import { CheckCircle2 } from "lucide-react";
  * The real, backend-verified salon-owner dashboard — only reachable once
  * a platform admin has approved the application (SalonOwnerStatusGate
  * enforces this client-side; requireVerifiedSalonOwner + requireActiveSalon
- * enforce it for real on every glowsync-be salon-owner API call).
+ * enforce it for real on every salon-owner API route).
  *
  * This is intentionally minimal: full salon-management features (branches,
  * services, staff, bookings) are a separate, larger scope than this
  * verification module — see the middleware chain in
- * glowsync-be/src/routes/salonOwner.routes.ts for where they'd plug in.
+ * src/app/api/salon-owner/ for where they'd plug in.
  */
 export default function SalonOwnerDashboardPage() {
   const { data, isLoading } = useMyApplication();

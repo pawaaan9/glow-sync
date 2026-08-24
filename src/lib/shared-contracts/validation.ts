@@ -62,6 +62,8 @@ export const paginationSchema = z.object({
 });
 
 /** Shared by GET salon-applications and GET salons (both list the salons collection). */
+export type PaginationQuery = z.infer<typeof paginationSchema>;
+
 export const salonsQuerySchema = paginationSchema.extend({
   status: z.enum(ALL_SALON_STATUSES).optional(),
   search: z.string().trim().max(120).optional(),

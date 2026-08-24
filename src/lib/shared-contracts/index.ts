@@ -1,11 +1,11 @@
 /**
  * Domain contracts (roles, statuses, categories, Firestore doc/DTO shapes,
- * validation schemas) shared conceptually with glowsync-be's
- * src/shared-contracts/. glowsync-fe and glowsync-be are separate git
- * repositories with no shared build tooling between them, so this folder
- * is a literal mirror, not a symlink or package import — when these
- * contracts change, copy the updated files to the other repo's
- * src/shared-contracts/ (or src/lib/shared-contracts/) in the same commit.
+ * validation schemas) shared by the browser code and the API route
+ * handlers in src/app/api, which import them through src/lib/shared.
+ *
+ * These used to be mirrored by hand into a separate Express backend. The
+ * API now lives in this project, so this folder is the single source of
+ * truth and no copy needs keeping in sync.
  */
 export * from "./roles";
 export * from "./verification-status";

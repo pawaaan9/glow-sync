@@ -1,0 +1,22 @@
+rules_version = '2';
+
+// Every upload and every read of a verification document goes through the
+// backend (Admin SDK for uploads, short-lived signed URLs for reads) —
+// see src/services/storageService.ts — so the client Storage SDK should
+// never touch these paths directly. Denying it here is defense-in-depth.
+//
+// Salon logo objects are made public at upload time (bucket.file(...).save
+// with { public: true }), which serves them via their public GCS URL
+// regardless of these rules — that's intentional, logos are public
+// marketing assets — but no client write path is opened for them either.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /verification-documents/{allPaths=**} {
+      allow read, write: if false;
+    }
+    match /salon-logos/{allPaths=**} {
+      allow read: if false;
+      allow write: if false;
+    }
+  }
+}

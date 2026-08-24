@@ -13,7 +13,7 @@ import type { ReactNode } from "react";
  * salon_owner, then routes them to the page that matches their current
  * verificationStatus (see getSalonOwnerRedirectPath) — this is what stops
  * a pending/rejected/suspended owner from sitting on the dashboard route
- * by typing the URL directly. Still UX-only: glowsync-be's
+ * by typing the URL directly. Still UX-only: the API's
  * requireVerifiedSalonOwner middleware is the real enforcement.
  */
 export function SalonOwnerStatusGate({ children }: { children: ReactNode }) {

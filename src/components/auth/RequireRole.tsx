@@ -11,7 +11,7 @@ import type { ReactNode } from "react";
  * Client-side route guard: redirects to /login when signed out, or to
  * `forbiddenRedirect` when signed in but not one of `roles`. This is a UX
  * convenience only — every protected endpoint re-checks role/status
- * server-side (see glowsync-be/src/middleware/*), so this guard being
+ * server-side (see src/server/http/auth.ts), so this guard being
  * bypassed or racy can never grant real access.
  */
 export function RequireRole({

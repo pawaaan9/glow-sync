@@ -1,8 +1,6 @@
 import { auth } from "@/lib/firebase/client";
 import { ApiError } from "./client";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
-
 interface ApiEnvelope<T> {
   success: boolean;
   data?: T;
@@ -10,10 +8,13 @@ interface ApiEnvelope<T> {
 }
 
 /**
- * Fetch wrapper for the real backend (glowsync-be): attaches the current
- * Firebase ID token when signed in, prefixes API_BASE_URL, and unwraps the
- * backend's { success, data } / { success, error } envelope into either a
- * plain value or a thrown ApiError with the backend's code/message intact.
+ * Fetch wrapper for the API routes under src/app/api: attaches the current
+ * Firebase ID token when signed in, and unwraps the { success, data } /
+ * { success, error } envelope into either a plain value or a thrown
+ * ApiError with the server's code/message intact.
+ *
+ * Paths are same-origin and relative, so there is no base URL and no CORS
+ * preflight — the API ships with the app.
  */
 export async function apiFetch<T>(
   path: string,
@@ -31,7 +32,7 @@ export async function apiFetch<T>(
     if (idToken) finalHeaders.set("Authorization", `Bearer ${idToken}`);
   }
 
-  const res = await fetch(`${API_BASE_URL}${path}`, { ...rest, headers: finalHeaders });
+  const res = await fetch(path, { ...rest, headers: finalHeaders });
 
   let body: ApiEnvelope<T> | undefined;
   try {
