@@ -1,8 +1,8 @@
 "use client";
 
 import { FullPageLoader } from "@/components/auth/FullPageLoader";
+import { ConfirmDialog } from "@/components/platform-admin/ConfirmDialog";
 import { NotificationsBell } from "@/components/platform-admin/NotificationsBell";
-import { ProfileMenu } from "@/components/platform-admin/ProfileMenu";
 import { SuperAdminLogin } from "@/components/platform-admin/SuperAdminLogin";
 import { usePlatformAdminDashboard } from "@/hooks/use-platform-admin";
 import { ROLES } from "@/lib/shared";
@@ -12,6 +12,7 @@ import {
   ClipboardList,
   History,
   LayoutDashboard,
+  LogOut,
   Menu,
   ShieldOff,
   Sparkles,
@@ -60,7 +61,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
   {
     label: "Directory",
     items: [
-      { href: "/platform-admin/salons", label: "Salons", icon: Store },
+      { href: "/platform-admin/salons", label: "Salons", icon: Store, exact: true },
       { href: "/platform-admin/salon-owners", label: "Salon owners", icon: Users },
     ],
   },
@@ -101,7 +102,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                 className={cn(
                   "group relative flex items-center gap-3 rounded-2xl py-2.5 pl-4 pr-3 text-sm font-medium tracking-tight transition-all duration-200",
                   active
-                    ? "bg-linear-to-r from-rose-500/90 to-purple-500/90 text-white shadow-[0_10px_30px_-12px_var(--color-rose-500)]"
+                    ? "bg-linear-to-r from-rose-500/90 to-purple-500/90 text-white"
                     : "text-white/60 hover:translate-x-0.5 hover:bg-white/5 hover:text-white",
                 )}
               >
@@ -158,21 +159,54 @@ function SidebarBrand() {
   );
 }
 
-/** Signed-in admin card pinned to the bottom of the rail. */
+/** Signed-in admin card pinned to the bottom of the rail, with sign-out. */
 function SidebarAccount() {
-  const { me } = useAuth();
+  const { me, signOut } = useAuth();
   const name = me?.user.fullName ?? "Admin";
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  async function handleConfirm() {
+    setLoggingOut(true);
+    try {
+      await signOut();
+    } finally {
+      setLoggingOut(false);
+      setConfirmOpen(false);
+    }
+  }
 
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-white/5 px-3 py-3">
-      <span className="font-display flex size-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-rose-500 to-purple-600 text-sm text-white">
-        {name.charAt(0).toUpperCase()}
-      </span>
-      <span className="min-w-0 flex-1 leading-tight">
-        <span className="block truncate text-sm font-medium text-white">{name}</span>
-        <span className="block truncate text-xs text-white/40">{me?.user.email}</span>
-      </span>
-    </div>
+    <>
+      <div className="flex items-center gap-3 rounded-2xl bg-white/5 px-3 py-3">
+        <span className="font-display flex size-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-rose-500 to-purple-600 text-sm text-white">
+          {name.charAt(0).toUpperCase()}
+        </span>
+        <span className="min-w-0 flex-1 leading-tight">
+          <span className="block truncate text-sm font-medium text-white">{name}</span>
+          <span className="block truncate text-xs text-white/40">{me?.user.email}</span>
+        </span>
+        <button
+          type="button"
+          onClick={() => setConfirmOpen(true)}
+          aria-label="Log out"
+          className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          <LogOut className="size-4" />
+        </button>
+      </div>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleConfirm}
+        title="Log out?"
+        description="You'll be signed out of the platform admin console and need to enter your credentials again to get back in."
+        confirmLabel="Log out"
+        variant="danger"
+        isSubmitting={loggingOut}
+      />
+    </>
   );
 }
 
@@ -250,7 +284,6 @@ export function PlatformAdminShell({ children }: { children: ReactNode }) {
           <span className="font-display hidden text-lg text-ink lg:block">Platform Admin</span>
           <div className="ml-auto flex items-center gap-2">
             <NotificationsBell />
-            <ProfileMenu />
           </div>
         </header>
 
