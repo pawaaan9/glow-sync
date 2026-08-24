@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 const columns = [
@@ -35,9 +35,7 @@ export function Footer() {
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <Link href="/" className="flex items-center gap-2">
-              <span className="flex size-8 items-center justify-center rounded-full bg-linear-to-br from-rose-400 to-purple-500 text-white">
-                <Sparkles className="size-4" />
-              </span>
+              <Image src="/logo1.png" alt="GlowSync" width={32} height={32} className="size-8 rounded-lg" />
               <span className="font-display text-lg text-neutral-900">GlowSync</span>
             </Link>
             <p className="mt-3 text-sm text-neutral-500">
