@@ -1,0 +1,256 @@
+import type { Salon, ServiceCategory } from "./types";
+
+export const serviceCategories: ServiceCategory[] = [
+  { id: "hair", name: "Hair", icon: "scissors" },
+  { id: "nails", name: "Nails", icon: "hand" },
+  { id: "skincare", name: "Skincare", icon: "sparkles" },
+  { id: "massage", name: "Massage", icon: "heart-handshake" },
+  { id: "makeup", name: "Makeup", icon: "palette" },
+  { id: "spa", name: "Spa", icon: "flower-2" },
+];
+
+const img = (seed: string, w = 800, h = 600) =>
+  `https://picsum.photos/seed/${seed}/${w}/${h}`;
+
+export const salons: Salon[] = [
+  {
+    id: "s1",
+    slug: "the-rose-atelier",
+    name: "The Rose Atelier",
+    tagline: "Boutique hair & beauty studio",
+    description:
+      "The Rose Atelier is a boutique salon specializing in precision haircuts, balayage color, and luxury styling. Our stylists are trained in the latest techniques to give you a look that's uniquely yours.",
+    coverImageUrl: img("rose-atelier-cover", 1600, 900),
+    galleryImageUrls: [img("rose-1"), img("rose-2"), img("rose-3"), img("rose-4")],
+    address: "128 Bloom Street",
+    city: "San Francisco",
+    rating: 4.9,
+    reviewCount: 312,
+    priceLevel: 3,
+    categories: ["hair", "makeup"],
+    amenities: ["Free WiFi", "Complimentary drinks", "Wheelchair accessible", "Parking"],
+    openingHours: [
+      { day: "Mon", open: "09:00", close: "18:00" },
+      { day: "Tue", open: "09:00", close: "18:00" },
+      { day: "Wed", open: "09:00", close: "18:00" },
+      { day: "Thu", open: "09:00", close: "20:00" },
+      { day: "Fri", open: "09:00", close: "20:00" },
+      { day: "Sat", open: "10:00", close: "17:00" },
+      { day: "Sun", open: "", close: "", closed: true },
+    ],
+    featured: true,
+    services: [
+      { id: "sv1", salonId: "s1", name: "Signature Haircut", description: "Precision cut tailored to your face shape.", category: "hair", durationMinutes: 60, price: 85, imageUrl: img("svc-cut") },
+      { id: "sv2", salonId: "s1", name: "Balayage Color", description: "Hand-painted highlights for a sun-kissed finish.", category: "hair", durationMinutes: 150, price: 220, imageUrl: img("svc-balayage") },
+      { id: "sv3", salonId: "s1", name: "Blowout & Style", description: "Smooth, voluminous finish for any occasion.", category: "hair", durationMinutes: 45, price: 55, imageUrl: img("svc-blowout") },
+      { id: "sv4", salonId: "s1", name: "Bridal Makeup", description: "Full glam makeup application with trial.", category: "makeup", durationMinutes: 90, price: 180, imageUrl: img("svc-makeup") },
+    ],
+    staff: [
+      { id: "st1", salonId: "s1", name: "Amara Chen", role: "Master Stylist", avatarUrl: img("staff-amara", 300, 300), rating: 4.9, reviewCount: 210, specialties: ["Balayage", "Precision Cuts"], bio: "10+ years crafting color transformations." },
+      { id: "st2", salonId: "s1", name: "Jonah Reyes", role: "Senior Colorist", avatarUrl: img("staff-jonah", 300, 300), rating: 4.8, reviewCount: 156, specialties: ["Color Correction", "Blondes"] },
+    ],
+    reviews: [
+      { id: "r1", salonId: "s1", customerName: "Priya S.", rating: 5, comment: "Amara transformed my hair completely. Best salon experience I've had.", date: "2026-07-14", serviceName: "Balayage Color", customerAvatarUrl: img("rev-priya", 200, 200) },
+      { id: "r2", salonId: "s1", customerName: "Lena M.", rating: 5, comment: "Cozy space, lovely staff, and the blowout lasted a full week.", date: "2026-06-30", serviceName: "Blowout & Style", customerAvatarUrl: img("rev-lena", 200, 200) },
+      { id: "r3", salonId: "s1", customerName: "Grace T.", rating: 4, comment: "Great cut, booking was easy. Slightly pricey but worth it.", date: "2026-06-02", serviceName: "Signature Haircut" },
+    ],
+  },
+  {
+    id: "s2",
+    slug: "velvet-nail-lounge",
+    name: "Velvet Nail Lounge",
+    tagline: "Modern nail artistry & spa pedicures",
+    description:
+      "Velvet Nail Lounge blends nail artistry with a spa-like atmosphere. From classic manicures to intricate nail art, our technicians deliver flawless, long-lasting results.",
+    coverImageUrl: img("velvet-cover", 1600, 900),
+    galleryImageUrls: [img("velvet-1"), img("velvet-2"), img("velvet-3")],
+    address: "45 Orchid Avenue",
+    city: "San Francisco",
+    rating: 4.7,
+    reviewCount: 198,
+    priceLevel: 2,
+    categories: ["nails"],
+    amenities: ["Free WiFi", "Kid friendly", "Sanitized tools"],
+    openingHours: [
+      { day: "Mon", open: "10:00", close: "19:00" },
+      { day: "Tue", open: "10:00", close: "19:00" },
+      { day: "Wed", open: "10:00", close: "19:00" },
+      { day: "Thu", open: "10:00", close: "19:00" },
+      { day: "Fri", open: "10:00", close: "19:00" },
+      { day: "Sat", open: "09:00", close: "18:00" },
+      { day: "Sun", open: "11:00", close: "16:00" },
+    ],
+    featured: true,
+    services: [
+      { id: "sv5", salonId: "s2", name: "Gel Manicure", description: "Long-lasting gel polish with cuticle care.", category: "nails", durationMinutes: 45, price: 45, imageUrl: img("svc-gel") },
+      { id: "sv6", salonId: "s2", name: "Spa Pedicure", description: "Relaxing soak, exfoliation, and massage.", category: "nails", durationMinutes: 60, price: 65, imageUrl: img("svc-pedi") },
+      { id: "sv7", salonId: "s2", name: "Custom Nail Art", description: "Hand-painted designs, add-ons available.", category: "nails", durationMinutes: 75, price: 75, imageUrl: img("svc-art") },
+    ],
+    staff: [
+      { id: "st3", salonId: "s2", name: "Mia Alvarez", role: "Nail Artist", avatarUrl: img("staff-mia", 300, 300), rating: 4.9, reviewCount: 140, specialties: ["Nail Art", "Gel Extensions"] },
+      { id: "st4", salonId: "s2", name: "Sofia Park", role: "Nail Technician", avatarUrl: img("staff-sofia", 300, 300), rating: 4.6, reviewCount: 88, specialties: ["Pedicures"] },
+    ],
+    reviews: [
+      { id: "r4", salonId: "s2", customerName: "Hana K.", rating: 5, comment: "Mia's nail art is unbelievable, always get compliments.", date: "2026-07-20", serviceName: "Custom Nail Art" },
+      { id: "r5", salonId: "s2", customerName: "Devon R.", rating: 4, comment: "Relaxing pedicure, clean space.", date: "2026-06-18", serviceName: "Spa Pedicure" },
+    ],
+  },
+  {
+    id: "s3",
+    slug: "pure-glow-skincare",
+    name: "Pure Glow Skincare",
+    tagline: "Medical-grade facials & skin treatments",
+    description:
+      "Pure Glow Skincare offers medical-grade facials, chemical peels, and personalized skincare plans led by licensed estheticians. Come in stressed, leave glowing.",
+    coverImageUrl: img("pureglow-cover", 1600, 900),
+    galleryImageUrls: [img("glow-1"), img("glow-2"), img("glow-3")],
+    address: "902 Willow Lane",
+    city: "Oakland",
+    rating: 4.8,
+    reviewCount: 264,
+    priceLevel: 3,
+    categories: ["skincare", "spa"],
+    amenities: ["Free WiFi", "Private rooms", "Vegan products"],
+    openingHours: [
+      { day: "Mon", open: "", close: "", closed: true },
+      { day: "Tue", open: "09:00", close: "17:00" },
+      { day: "Wed", open: "09:00", close: "17:00" },
+      { day: "Thu", open: "09:00", close: "19:00" },
+      { day: "Fri", open: "09:00", close: "19:00" },
+      { day: "Sat", open: "09:00", close: "16:00" },
+      { day: "Sun", open: "", close: "", closed: true },
+    ],
+    featured: true,
+    services: [
+      { id: "sv8", salonId: "s3", name: "HydraFacial", description: "Deep cleanse, exfoliate, and hydrate in one session.", category: "skincare", durationMinutes: 60, price: 150, imageUrl: img("svc-hydrafacial") },
+      { id: "sv9", salonId: "s3", name: "Chemical Peel", description: "Resurfacing treatment for tone and texture.", category: "skincare", durationMinutes: 45, price: 120, imageUrl: img("svc-peel") },
+      { id: "sv10", salonId: "s3", name: "Anti-Aging Facial", description: "Targeted treatment with peptides and retinol.", category: "skincare", durationMinutes: 75, price: 175, imageUrl: img("svc-antiaging") },
+    ],
+    staff: [
+      { id: "st5", salonId: "s3", name: "Dr. Elise Wong", role: "Licensed Esthetician", avatarUrl: img("staff-elise", 300, 300), rating: 5.0, reviewCount: 190, specialties: ["Chemical Peels", "Acne Treatment"] },
+    ],
+    reviews: [
+      { id: "r6", salonId: "s3", customerName: "Marcus B.", rating: 5, comment: "My skin has never looked better. Dr. Wong is incredible.", date: "2026-07-10", serviceName: "HydraFacial" },
+      { id: "r7", salonId: "s3", customerName: "Tasha O.", rating: 5, comment: "Worth every penny, very professional and clean.", date: "2026-05-22", serviceName: "Anti-Aging Facial" },
+    ],
+  },
+  {
+    id: "s4",
+    slug: "serenity-spa-wellness",
+    name: "Serenity Spa & Wellness",
+    tagline: "Full-body massage & relaxation retreat",
+    description:
+      "Escape the everyday at Serenity Spa & Wellness. Our licensed massage therapists specialize in deep tissue, Swedish, and hot stone treatments in a tranquil, plant-filled setting.",
+    coverImageUrl: img("serenity-cover", 1600, 900),
+    galleryImageUrls: [img("ser-1"), img("ser-2"), img("ser-3")],
+    address: "17 Lotus Court",
+    city: "Berkeley",
+    rating: 4.9,
+    reviewCount: 421,
+    priceLevel: 2,
+    categories: ["massage", "spa"],
+    amenities: ["Sauna", "Free WiFi", "Locker rooms", "Parking"],
+    openingHours: [
+      { day: "Mon", open: "08:00", close: "20:00" },
+      { day: "Tue", open: "08:00", close: "20:00" },
+      { day: "Wed", open: "08:00", close: "20:00" },
+      { day: "Thu", open: "08:00", close: "20:00" },
+      { day: "Fri", open: "08:00", close: "21:00" },
+      { day: "Sat", open: "08:00", close: "21:00" },
+      { day: "Sun", open: "09:00", close: "18:00" },
+    ],
+    services: [
+      { id: "sv11", salonId: "s4", name: "Deep Tissue Massage", description: "Targeted pressure for muscle tension relief.", category: "massage", durationMinutes: 60, price: 110, imageUrl: img("svc-deeptissue") },
+      { id: "sv12", salonId: "s4", name: "Hot Stone Massage", description: "Warm basalt stones melt away stress.", category: "massage", durationMinutes: 90, price: 140, imageUrl: img("svc-hotstone") },
+      { id: "sv13", salonId: "s4", name: "Aromatherapy Massage", description: "Essential oils paired with gentle strokes.", category: "massage", durationMinutes: 60, price: 100, imageUrl: img("svc-aroma") },
+    ],
+    staff: [
+      { id: "st6", salonId: "s4", name: "Noah Fischer", role: "Massage Therapist", avatarUrl: img("staff-noah", 300, 300), rating: 4.9, reviewCount: 260, specialties: ["Deep Tissue", "Sports Recovery"] },
+      { id: "st7", salonId: "s4", name: "Ivy Nakamura", role: "Massage Therapist", avatarUrl: img("staff-ivy", 300, 300), rating: 4.8, reviewCount: 175, specialties: ["Hot Stone", "Prenatal"] },
+    ],
+    reviews: [
+      { id: "r8", salonId: "s4", customerName: "Owen P.", rating: 5, comment: "Noah found every knot. Left feeling like a new person.", date: "2026-07-05", serviceName: "Deep Tissue Massage" },
+      { id: "r9", salonId: "s4", customerName: "Camille F.", rating: 5, comment: "The most relaxing hour of my week, every week.", date: "2026-06-28", serviceName: "Hot Stone Massage" },
+    ],
+  },
+  {
+    id: "s5",
+    slug: "luxe-brow-lash-bar",
+    name: "Luxe Brow & Lash Bar",
+    tagline: "Expert brow shaping & lash extensions",
+    description:
+      "Luxe Brow & Lash Bar specializes in microblading, lash extensions, and brow lamination. Precision artistry to frame your face perfectly.",
+    coverImageUrl: img("luxe-cover", 1600, 900),
+    galleryImageUrls: [img("luxe-1"), img("luxe-2")],
+    address: "310 Meadow Road",
+    city: "San Jose",
+    rating: 4.6,
+    reviewCount: 143,
+    priceLevel: 2,
+    categories: ["makeup", "skincare"],
+    amenities: ["Free WiFi", "Patch tests available"],
+    openingHours: [
+      { day: "Mon", open: "10:00", close: "18:00" },
+      { day: "Tue", open: "10:00", close: "18:00" },
+      { day: "Wed", open: "10:00", close: "18:00" },
+      { day: "Thu", open: "10:00", close: "18:00" },
+      { day: "Fri", open: "10:00", close: "18:00" },
+      { day: "Sat", open: "09:00", close: "15:00" },
+      { day: "Sun", open: "", close: "", closed: true },
+    ],
+    services: [
+      { id: "sv14", salonId: "s5", name: "Classic Lash Extensions", description: "Natural-looking length and volume.", category: "makeup", durationMinutes: 90, price: 130, imageUrl: img("svc-lash") },
+      { id: "sv15", salonId: "s5", name: "Brow Lamination", description: "Fuller, fluffier brows that hold their shape.", category: "makeup", durationMinutes: 45, price: 65, imageUrl: img("svc-brow") },
+    ],
+    staff: [
+      { id: "st8", salonId: "s5", name: "Riley Santos", role: "Lash Artist", avatarUrl: img("staff-riley", 300, 300), rating: 4.7, reviewCount: 98, specialties: ["Volume Lashes"] },
+    ],
+    reviews: [
+      { id: "r10", salonId: "s5", customerName: "Beatrice L.", rating: 5, comment: "My lashes look incredible and lasted 3 weeks.", date: "2026-07-01", serviceName: "Classic Lash Extensions" },
+      { id: "r11", salonId: "s5", customerName: "Farah N.", rating: 4, comment: "Great brow shaping, friendly staff.", date: "2026-06-11", serviceName: "Brow Lamination" },
+    ],
+  },
+  {
+    id: "s6",
+    slug: "urban-cuts-barber-co",
+    name: "Urban Cuts Barber Co.",
+    tagline: "Classic barbershop, modern precision",
+    description:
+      "Urban Cuts Barber Co. brings classic barbershop craftsmanship to modern grooming — fades, beard sculpting, and hot towel shaves in a relaxed, no-frills space.",
+    coverImageUrl: img("urban-cover", 1600, 900),
+    galleryImageUrls: [img("urban-1"), img("urban-2"), img("urban-3")],
+    address: "58 Granite Street",
+    city: "San Francisco",
+    rating: 4.8,
+    reviewCount: 356,
+    priceLevel: 1,
+    categories: ["hair"],
+    amenities: ["Walk-ins welcome", "Free WiFi", "Beer on tap"],
+    openingHours: [
+      { day: "Mon", open: "09:00", close: "19:00" },
+      { day: "Tue", open: "09:00", close: "19:00" },
+      { day: "Wed", open: "09:00", close: "19:00" },
+      { day: "Thu", open: "09:00", close: "19:00" },
+      { day: "Fri", open: "09:00", close: "20:00" },
+      { day: "Sat", open: "08:00", close: "18:00" },
+      { day: "Sun", open: "10:00", close: "16:00" },
+    ],
+    services: [
+      { id: "sv16", salonId: "s6", name: "Classic Fade", description: "Sharp, clean fade with lineup.", category: "hair", durationMinutes: 30, price: 40, imageUrl: img("svc-fade") },
+      { id: "sv17", salonId: "s6", name: "Beard Sculpt & Hot Towel", description: "Precision beard shaping with hot towel finish.", category: "hair", durationMinutes: 30, price: 35, imageUrl: img("svc-beard") },
+      { id: "sv18", salonId: "s6", name: "Cut + Beard Combo", description: "Full haircut and beard grooming package.", category: "hair", durationMinutes: 60, price: 65, imageUrl: img("svc-combo") },
+    ],
+    staff: [
+      { id: "st9", salonId: "s6", name: "Marcus Dell", role: "Master Barber", avatarUrl: img("staff-marcus", 300, 300), rating: 4.9, reviewCount: 240, specialties: ["Fades", "Beard Design"] },
+      { id: "st10", salonId: "s6", name: "Andre Wells", role: "Barber", avatarUrl: img("staff-andre", 300, 300), rating: 4.7, reviewCount: 116, specialties: ["Classic Cuts"] },
+    ],
+    reviews: [
+      { id: "r12", salonId: "s6", customerName: "Julian K.", rating: 5, comment: "Best fade in the city, hands down.", date: "2026-07-18", serviceName: "Classic Fade" },
+      { id: "r13", salonId: "s6", customerName: "Theo B.", rating: 5, comment: "Marcus is a true craftsman. Never disappoints.", date: "2026-06-25", serviceName: "Cut + Beard Combo" },
+    ],
+  },
+];
+
+export function computeSalonPriceFrom(salon: Salon) {
+  return Math.min(...salon.services.map((s) => s.price));
+}
