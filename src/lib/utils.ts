@@ -5,12 +5,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Every price in the product is Sri Lankan rupees; see also formatLkr in booking-ui. */
 export function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
+  return `Rs. ${amount.toLocaleString("en-LK", { maximumFractionDigits: 0 })}`;
 }
 
 export function formatDuration(minutes: number) {

@@ -1,77 +1,84 @@
 import { Marquee } from "@/components/landing/Marquee";
 import { HeroSearch } from "@/components/landing/HeroSearch";
 import { CategoryIcon } from "@/components/salon/CategoryIcon";
-import { RatingStars } from "@/components/salon/RatingStars";
 import { SalonCard } from "@/components/salon/SalonCard";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/Card";
-import { getFeaturedSalons } from "@/lib/api";
-import { salons, serviceCategories } from "@/lib/mock-data";
+import { SALON_CATEGORY_LABELS } from "@/lib/shared";
 import { cn } from "@/lib/utils";
+import {
+  getPublicFilters,
+  listPublicSalons,
+} from "@/server/services/publicCatalogService";
 import {
   ArrowRight,
   CalendarCheck,
-  Quote,
   ShieldCheck,
   Sparkles,
+  Store,
   Wallet,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 
+/** Product promises, not data — these describe how GlowSync works. */
 const highlights = [
   {
     icon: CalendarCheck,
-    title: "Book in seconds",
+    title: "One place for every salon",
     description:
-      "Real-time availability across every salon, no phone calls needed.",
+      "Browse verified salons, their real service menus, and their opening hours in one directory.",
   },
   {
     icon: ShieldCheck,
-    title: "Verified professionals",
+    title: "Reviewed before listing",
     description:
-      "Every stylist and therapist is vetted and reviewed by real clients.",
+      "Every salon is checked and approved by a GlowSync administrator before it appears here.",
   },
   {
     icon: Wallet,
     title: "Transparent pricing",
-    description: "See exact prices upfront — no surprises at checkout.",
+    description:
+      "Prices come straight from the salon — you see what they charge before you get in touch.",
   },
 ];
 
 const steps = [
   {
     title: "Discover",
-    description:
-      "Filter by treatment, city, rating, or budget until you find your match.",
+    description: "Filter by treatment, city, or category until you find your match.",
   },
   {
-    title: "Choose your artist",
-    description:
-      "Browse stylists and therapists, read their reviews, pick your favourite.",
+    title: "Compare the menu",
+    description: "See each salon's real services, durations, and prices side by side.",
   },
   {
-    title: "Book & glow",
-    description:
-      "Lock in a slot in seconds and get a reminder before you walk in.",
+    title: "Get in touch",
+    description: "Call or message the salon directly to lock in your appointment.",
   },
 ];
-
-const stats = [
-  { value: "1,800+", label: "Partner salons" },
-  { value: "240k", label: "Appointments booked" },
-  { value: "4.9", label: "Average rating" },
-  { value: "38", label: "Cities covered" },
-];
-
-// Pull the strongest reviews out of the catalogue for social proof.
-const testimonials = salons
-  .flatMap((s) => s.reviews.map((r) => ({ ...r, salonName: s.name })))
-  .filter((r) => r.rating === 5)
-  .slice(0, 3);
 
 export default async function Home() {
-  const featured = await getFeaturedSalons();
+  const [salons, filters] = await Promise.all([listPublicSalons(), getPublicFilters()]);
+
+  const totalServices = salons.reduce((sum, s) => sum + s.serviceCount, 0);
+  const featured = salons.slice(0, 6);
+
+  // Placeholder hints and the marquee both come from live categories, so the
+  // page never advertises a treatment no listed salon actually offers.
+  const categoryLabels = filters.categories.map((c) => SALON_CATEGORY_LABELS[c]);
+
+  const stats = [
+    { value: String(salons.length), label: salons.length === 1 ? "Listed salon" : "Listed salons" },
+    { value: String(totalServices), label: totalServices === 1 ? "Service" : "Services" },
+    {
+      value: String(filters.cities.length),
+      label: filters.cities.length === 1 ? "City" : "Cities",
+    },
+    {
+      value: String(filters.categories.length),
+      label: filters.categories.length === 1 ? "Category" : "Categories",
+    },
+  ];
 
   return (
     <div className="flex flex-col">
@@ -86,7 +93,7 @@ export default async function Home() {
               <span className="animate-pulse-ring absolute inline-flex size-full rounded-full bg-rose-400" />
               <span className="relative inline-flex size-2 rounded-full bg-rose-500" />
             </span>
-            Premium beauty &amp; wellness, booked instantly
+            Sri Lanka&apos;s salon &amp; wellness directory
           </span>
 
           <h1
@@ -101,140 +108,120 @@ export default async function Home() {
             className="animate-rise max-w-xl text-lg leading-relaxed text-balance text-neutral-600"
             style={{ animationDelay: "160ms" }}
           >
-            Discover top-rated salons, spas, and wellness studios near you — then
-            book your next appointment in just a few taps.
+            Discover salons, spas, and wellness studios near you — see their real service
+            menus and prices, then book directly with them.
           </p>
 
           <div
             className="animate-rise flex w-full justify-center"
             style={{ animationDelay: "240ms" }}
           >
-            <HeroSearch />
+            <HeroSearch suggestions={categoryLabels} />
           </div>
 
-          <div
-            className="animate-rise flex flex-wrap items-center justify-center gap-2 text-sm"
-            style={{ animationDelay: "320ms" }}
-          >
-            <span className="text-neutral-500">Popular:</span>
-            {serviceCategories.slice(0, 4).map((c) => (
+          {filters.categories.length > 0 && (
+            <div
+              className="animate-rise flex flex-wrap items-center justify-center gap-2 text-sm"
+              style={{ animationDelay: "320ms" }}
+            >
+              <span className="text-neutral-500">Browse:</span>
+              {filters.categories.slice(0, 4).map((c) => (
+                <Link
+                  key={c}
+                  href={`/search?category=${c}`}
+                  className="rounded-full border border-neutral-200/80 bg-white/70 px-3 py-1 text-neutral-600 backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:border-rose-300 hover:text-rose-700"
+                >
+                  {SALON_CATEGORY_LABELS[c]}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {categoryLabels.length > 0 && <Marquee items={categoryLabels} />}
+
+      {/* Categories */}
+      {filters.categories.length > 0 && (
+        <section className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          <SectionHeading
+            eyebrow="Explore"
+            title="Browse by category"
+            description="Pick a lane and we will show you every listed salon in it."
+            align="center"
+            className="mx-auto"
+          />
+
+          <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {filters.categories.map((category, i) => (
               <Link
-                key={c.id}
-                href={`/search?category=${c.id}`}
-                className="rounded-full border border-neutral-200/80 bg-white/70 px-3 py-1 text-neutral-600 backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:border-rose-300 hover:text-rose-700"
+                key={category}
+                href={`/search?category=${category}`}
+                className="group relative flex flex-col items-center gap-3 overflow-hidden rounded-3xl border border-neutral-100 bg-white p-6 text-center transition-all duration-300 hover:-translate-y-1.5 hover:border-transparent hover:shadow-[0_24px_50px_-30px_rgba(217,36,88,0.6)]"
               >
-                {c.name}
+                <span
+                  className={cn(
+                    "absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+                    i % 3 === 0 && "bg-linear-to-b from-rose-50 to-white",
+                    i % 3 === 1 && "bg-linear-to-b from-purple-50 to-white",
+                    i % 3 === 2 && "bg-linear-to-b from-amber-50 to-white",
+                  )}
+                />
+                <span className="relative flex size-14 items-center justify-center rounded-2xl bg-linear-to-br from-rose-100 via-purple-100 to-amber-100 text-rose-600 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
+                  <CategoryIcon category={category} className="size-6" />
+                </span>
+                <span className="font-display relative text-base text-ink">
+                  {SALON_CATEGORY_LABELS[category]}
+                </span>
               </Link>
             ))}
           </div>
+        </section>
+      )}
 
-          {/* Social proof strip */}
-          <div
-            className="animate-rise mt-4 flex items-center gap-4"
-            style={{ animationDelay: "400ms" }}
-          >
-            <div className="flex -space-x-3">
-              {salons.slice(0, 4).map((s) => (
-                <span
-                  key={s.id}
-                  className="relative size-10 overflow-hidden rounded-full ring-3 ring-white"
-                >
-                  <Image
-                    src={s.staff[0]?.avatarUrl ?? s.coverImageUrl}
-                    alt=""
-                    fill
-                    sizes="40px"
-                    className="object-cover"
-                  />
-                </span>
-              ))}
-            </div>
-            <div className="text-left">
-              <RatingStars rating={5} size={14} />
-              <p className="mt-0.5 text-xs text-neutral-500">
-                Loved by <strong className="text-ink">24,000+</strong> clients
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <Marquee
-        items={[
-          "Balayage",
-          "Hot stone massage",
-          "Gel manicure",
-          "HydraFacial",
-          "Brow lamination",
-          "Hot towel shave",
-          "Spa pedicure",
-          "Bridal makeup",
-        ]}
-      />
-
-      {/* Categories */}
-      <section className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <SectionHeading
-          eyebrow="Explore"
-          title="Browse by category"
-          description="Six ways to treat yourself — pick a lane and we will show you the best in town."
-          align="center"
-          className="mx-auto"
-        />
-
-        <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-          {serviceCategories.map((category, i) => (
-            <Link
-              key={category.id}
-              href={`/search?category=${category.id}`}
-              className="group relative flex flex-col items-center gap-3 overflow-hidden rounded-3xl border border-neutral-100 bg-white p-6 text-center transition-all duration-300 hover:-translate-y-1.5 hover:border-transparent hover:shadow-[0_24px_50px_-30px_rgba(217,36,88,0.6)]"
-            >
-              <span
-                className={cn(
-                  "absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100",
-                  i % 3 === 0 && "bg-linear-to-b from-rose-50 to-white",
-                  i % 3 === 1 && "bg-linear-to-b from-purple-50 to-white",
-                  i % 3 === 2 && "bg-linear-to-b from-amber-50 to-white",
-                )}
-              />
-              <span className="relative flex size-14 items-center justify-center rounded-2xl bg-linear-to-br from-rose-100 via-purple-100 to-amber-100 text-rose-600 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
-                <CategoryIcon icon={category.icon} className="size-6" />
-              </span>
-              <span className="font-display relative text-base text-ink">
-                {category.name}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Featured salons */}
+      {/* Listed salons */}
       <section className="relative overflow-hidden bg-neutral-50 py-20">
         <div className="pointer-events-none absolute -left-40 top-1/3 size-96 rounded-full bg-purple-200/30 blur-3xl" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
             <SectionHeading
-              eyebrow="Hand-picked"
-              title="Featured salons"
-              description="Studios our community keeps going back to, month after month."
+              eyebrow="On GlowSync"
+              title={salons.length === 1 ? "Our first salon" : "Salons on GlowSync"}
+              description="Every studio here has been verified by our team."
             />
-            <Button
-              href="/search"
-              variant="ink"
-              icon={
-                <ArrowRight className="size-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
-              }
-              className="flex-row-reverse"
-            >
-              View all
-            </Button>
+            {salons.length > featured.length && (
+              <Button
+                href="/search"
+                variant="ink"
+                icon={
+                  <ArrowRight className="size-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                }
+                className="flex-row-reverse"
+              >
+                View all
+              </Button>
+            )}
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.map((salon) => (
-              <SalonCard key={salon.id} salon={salon} />
-            ))}
-          </div>
+          {featured.length > 0 ? (
+            <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {featured.map((salon) => (
+                <SalonCard key={salon.id} salon={salon} />
+              ))}
+            </div>
+          ) : (
+            <div className="mt-12 flex flex-col items-center gap-4 rounded-3xl border border-dashed border-neutral-300 bg-white p-14 text-center">
+              <span className="flex size-14 items-center justify-center rounded-2xl bg-linear-to-br from-rose-100 to-purple-100 text-rose-600">
+                <Store className="size-6" />
+              </span>
+              <h3 className="font-display text-xl text-ink">No salons listed yet</h3>
+              <p className="max-w-sm text-sm text-neutral-500">
+                GlowSync is just getting started. If you run a salon, you could be the
+                first one here.
+              </p>
+              <Button href="/register/salon-owner">List your salon</Button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -242,13 +229,12 @@ export default async function Home() {
       <section className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="How it works"
-          title="Three taps to your next appointment"
+          title="Three steps to your next appointment"
           align="center"
           className="mx-auto"
         />
 
         <div className="relative mt-14 grid grid-cols-1 gap-10 sm:grid-cols-3">
-          {/* Connector line behind the numbered steps. */}
           <div className="pointer-events-none absolute inset-x-[16%] top-7 hidden h-px bg-linear-to-r from-rose-200 via-purple-200 to-amber-200 sm:block" />
 
           {steps.map((step, i) => (
@@ -280,9 +266,7 @@ export default async function Home() {
               <span className="relative flex size-12 items-center justify-center rounded-2xl bg-linear-to-br from-rose-500 to-purple-600 text-white shadow-[0_10px_24px_-12px_var(--color-purple-600)]">
                 <item.icon className="size-5" />
               </span>
-              <h3 className="font-display relative mt-5 text-xl text-ink">
-                {item.title}
-              </h3>
+              <h3 className="font-display relative mt-5 text-xl text-ink">{item.title}</h3>
               <p className="relative mt-2 text-sm leading-relaxed text-neutral-500">
                 {item.description}
               </p>
@@ -291,66 +275,24 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="relative overflow-hidden bg-neutral-50 py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            eyebrow="Reviews"
-            title="What the glow squad says"
-            align="center"
-            className="mx-auto"
-          />
-
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-            {testimonials.map((review) => (
-              <figure
-                key={review.id}
-                className="relative flex flex-col gap-4 rounded-3xl border border-neutral-100 bg-white p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_24px_50px_-32px_rgba(117,54,163,0.6)]"
+      {/* Live counts — these move as real salons join. */}
+      {salons.length > 0 && (
+        <section className="mx-auto w-full max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 gap-y-10 sm:grid-cols-4">
+            {stats.map((stat) => (
+              <div
+                key={stat.label}
+                className="flex flex-col items-center gap-1 border-neutral-200 text-center sm:not-last:border-r"
               >
-                <Quote className="size-7 fill-rose-100 text-rose-200" />
-                <blockquote className="text-[0.95rem] leading-relaxed text-neutral-700">
-                  {review.comment}
-                </blockquote>
-                <figcaption className="mt-auto flex items-center gap-3 border-t border-neutral-100 pt-4">
-                  <span className="font-display flex size-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-rose-100 to-purple-100 text-sm text-rose-700">
-                    {review.customerName.charAt(0)}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium text-ink">
-                      {review.customerName}
-                    </span>
-                    <span className="block truncate text-xs text-neutral-400">
-                      {review.serviceName} · {review.salonName}
-                    </span>
-                  </span>
-                  <RatingStars
-                    rating={review.rating}
-                    size={12}
-                    className="ml-auto shrink-0"
-                  />
-                </figcaption>
-              </figure>
+                <span className="font-display font-display-tight text-gradient text-4xl sm:text-5xl">
+                  {stat.value}
+                </span>
+                <span className="text-sm text-neutral-500">{stat.label}</span>
+              </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-y-10 sm:grid-cols-4">
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="flex flex-col items-center gap-1 border-neutral-200 text-center sm:not-last:border-r"
-            >
-              <span className="font-display font-display-tight text-gradient text-4xl sm:text-5xl">
-                {stat.value}
-              </span>
-              <span className="text-sm text-neutral-500">{stat.label}</span>
-            </div>
-          ))}
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Owner CTA */}
       <section className="mx-auto w-full max-w-6xl px-4 pb-4 sm:px-6 lg:px-8">
@@ -366,12 +308,12 @@ export default async function Home() {
             Own a salon? Grow your business with GlowSync
           </h2>
           <p className="relative max-w-md text-rose-50/90">
-            Join thousands of salons managing bookings, staff, and clients in one
-            place.
+            List your salon, publish your service menu, and manage bookings, staff, and
+            clients in one place.
           </p>
           <div className="relative flex flex-wrap items-center justify-center gap-3">
             <Button
-              href="/register"
+              href="/register/salon-owner"
               size="lg"
               className="bg-white bg-none text-rose-600 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.5)] hover:bg-rose-50"
             >

@@ -53,7 +53,11 @@ export async function apiFetch<T>(
   return body.data as T;
 }
 
-export function apiGet<T>(path: string, query?: Record<string, string | number | undefined>) {
+export function apiGet<T>(
+  path: string,
+  query?: Record<string, string | number | undefined>,
+  options?: { auth?: boolean },
+) {
   const search = query
     ? `?${new URLSearchParams(
         Object.entries(query).filter((e): e is [string, string] => e[1] !== undefined).map(
@@ -61,7 +65,7 @@ export function apiGet<T>(path: string, query?: Record<string, string | number |
         ),
       ).toString()}`
     : "";
-  return apiFetch<T>(`${path}${search}`);
+  return apiFetch<T>(`${path}${search}`, { auth: options?.auth });
 }
 
 export function apiPost<T>(path: string, body?: unknown, options?: { auth?: boolean }) {

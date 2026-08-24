@@ -1,38 +1,22 @@
-import { AtSign, Camera, Send } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+/** Only destinations that actually exist — no placeholder links to "/". */
 const columns = [
   {
-    title: "Company",
+    title: "Discover",
     links: [
-      { href: "/", label: "About" },
-      { href: "/", label: "Careers" },
-      { href: "/", label: "Press" },
+      { href: "/search", label: "Find a Salon" },
+      { href: "/", label: "Home" },
     ],
   },
   {
     title: "For Business",
     links: [
-      { href: "/dashboard/salon-owner", label: "Salon Owners" },
-      { href: "/dashboard/staff", label: "Staff Portal" },
-      { href: "/register", label: "List Your Salon" },
+      { href: "/register/salon-owner", label: "List Your Salon" },
+      { href: "/login", label: "Salon Owner Login" },
     ],
   },
-  {
-    title: "Support",
-    links: [
-      { href: "/", label: "Help Center" },
-      { href: "/", label: "Contact Us" },
-      { href: "/", label: "Cancellation Policy" },
-    ],
-  },
-];
-
-const socials = [
-  { icon: Camera, label: "Instagram" },
-  { icon: AtSign, label: "Threads" },
-  { icon: Send, label: "Newsletter" },
 ];
 
 export function Footer() {
@@ -46,7 +30,7 @@ export function Footer() {
           GlowSync
         </p>
 
-        <div className="mt-4 grid grid-cols-2 gap-10 border-t border-white/10 pt-12 sm:grid-cols-4">
+        <div className="mt-4 grid grid-cols-2 gap-10 border-t border-white/10 pt-12 sm:grid-cols-3">
           <div className="col-span-2 sm:col-span-1">
             <Link href="/" className="flex items-center gap-2.5">
               <Image
@@ -61,17 +45,6 @@ export function Footer() {
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-400">
               Book premium salon &amp; wellness experiences, effortlessly.
             </p>
-            <div className="mt-5 flex gap-2">
-              {socials.map((s) => (
-                <button
-                  key={s.label}
-                  aria-label={s.label}
-                  className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-white/10 text-neutral-400 transition-all duration-300 hover:border-rose-400/50 hover:bg-rose-500/10 hover:text-rose-300"
-                >
-                  <s.icon className="size-4" />
-                </button>
-              ))}
-            </div>
           </div>
 
           {columns.map((col) => (
@@ -96,14 +69,6 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-neutral-500 sm:flex-row">
           <span>© {new Date().getFullYear()} GlowSync. All rights reserved.</span>
-          <div className="flex gap-5">
-            <Link href="/" className="transition-colors hover:text-rose-300">
-              Privacy
-            </Link>
-            <Link href="/" className="transition-colors hover:text-rose-300">
-              Terms
-            </Link>
-          </div>
         </div>
       </div>
     </footer>

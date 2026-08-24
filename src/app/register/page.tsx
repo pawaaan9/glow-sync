@@ -15,9 +15,8 @@ export default function RegisterPage() {
       title="Create your account"
       subtitle="Book treatments, follow your favourite artists, and never miss a slot."
       aside={{
-        quote: "Listing my studio on GlowSync filled every empty chair in a month.",
-        author: "Amara Chen",
-        role: "Owner, The Rose Atelier",
+        headline: "Put your salon on the map.",
+        body: "List your studio, publish your service menu with real prices, and let clients find you.",
       }}
       footer={
         <>

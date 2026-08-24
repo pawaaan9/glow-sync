@@ -11,8 +11,8 @@ describe("getPostLoginRedirectPath (role-based redirection)", () => {
     expect(getPostLoginRedirectPath(ROLES.SALON_OWNER)).toBe("/salon-owner/dashboard");
   });
 
-  it("sends customer to the customer dashboard", () => {
-    expect(getPostLoginRedirectPath(ROLES.CUSTOMER)).toBe("/dashboard/customer");
+  it("sends customer to the public site — there is no customer portal yet", () => {
+    expect(getPostLoginRedirectPath(ROLES.CUSTOMER)).toBe("/");
   });
 
   it("sends staff and receptionist somewhere valid, not the admin or salon-owner areas", () => {

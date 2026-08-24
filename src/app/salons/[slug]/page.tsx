@@ -1,94 +1,86 @@
-import { SalonBooking } from "@/app/salons/[slug]/SalonBooking";
-import { RatingStars } from "@/components/salon/RatingStars";
+import { CategoryIcon } from "@/components/salon/CategoryIcon";
 import { SalonCard } from "@/components/salon/SalonCard";
+import { ServiceCard } from "@/components/salon/ServiceCard";
+import { StaffCard } from "@/components/salon/StaffCard";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/Card";
-import { getSalonBySlug } from "@/lib/api";
-import { salons } from "@/lib/mock-data";
+import { DAYS_OF_WEEK, DAY_LABELS, SALON_CATEGORY_LABELS } from "@/lib/shared";
 import { cn } from "@/lib/utils";
-import { Check, Clock, MapPin, Star } from "lucide-react";
+import {
+  getPublicSalonBySlug,
+  listPublicSalons,
+} from "@/server/services/publicCatalogService";
+import { Check, Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-
-export function generateStaticParams() {
-  return salons.map((s) => ({ slug: s.slug }));
-}
 
 export async function generateMetadata({
   params,
 }: PageProps<"/salons/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const salon = salons.find((s) => s.slug === slug);
+  const salon = await getPublicSalonBySlug(slug).catch(() => null);
   if (!salon) return { title: "Salon not found — GlowSync" };
   return {
     title: `${salon.name} — GlowSync`,
-    description: salon.tagline,
+    description: salon.description,
   };
 }
-
-const priceLabel = { 1: "$", 2: "$$", 3: "$$$" } as const;
 
 export default async function SalonPage({ params }: PageProps<"/salons/[slug]">) {
   const { slug } = await params;
 
-  const salon = await getSalonBySlug(slug).catch(() => null);
+  const salon = await getPublicSalonBySlug(slug).catch(() => null);
   if (!salon) notFound();
 
-  const related = salons
-    .filter(
-      (s) =>
-        s.id !== salon.id && s.categories.some((c) => salon.categories.includes(c)),
-    )
+  // Other live salons in the same category, for the "more like this" rail.
+  const related = (await listPublicSalons({ category: salon.category }))
+    .filter((s) => s.id !== salon.id)
     .slice(0, 3);
+
+  const cover = salon.coverImageUrl ?? salon.logoUrl;
+  const socials = [
+    { href: salon.socialLinks.instagram, label: "Instagram" },
+    { href: salon.socialLinks.facebook, label: "Facebook" },
+    { href: salon.socialLinks.tiktok, label: "TikTok" },
+    { href: salon.socialLinks.website, label: "Website" },
+  ].filter((s): s is { href: string; label: string } => Boolean(s.href));
 
   return (
     <div className="flex flex-col">
       {/* Cover */}
       <section className="relative h-[46vh] min-h-80 w-full overflow-hidden">
-        <Image
-          src={salon.coverImageUrl}
-          alt={salon.name}
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
+        {cover ? (
+          <Image src={cover} alt={salon.name} fill priority sizes="100vw" className="object-cover" />
+        ) : (
+          <div className="size-full bg-linear-to-br from-rose-200 via-purple-200 to-amber-100" />
+        )}
         <div className="absolute inset-0 bg-linear-to-t from-ink via-ink/50 to-ink/10" />
 
         <div className="absolute inset-x-0 bottom-0">
           <div className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
-            <div className="flex flex-wrap gap-2">
-              {salon.categories.map((c) => (
-                <Badge key={c} variant="glass" className="capitalize">
-                  {c}
-                </Badge>
-              ))}
-              {salon.featured && (
-                <Badge className="bg-amber-400 text-amber-950">Featured</Badge>
-              )}
-            </div>
+            <Badge variant="glass" className="inline-flex items-center gap-1.5">
+              <CategoryIcon category={salon.category} className="size-3.5" />
+              {SALON_CATEGORY_LABELS[salon.category]}
+            </Badge>
 
             <h1 className="font-display font-display-tight mt-4 text-[clamp(2.25rem,6vw,4rem)] text-white">
               {salon.name}
             </h1>
-            <p className="mt-2 max-w-xl text-white/80">{salon.tagline}</p>
 
             <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-white/85">
-              <span className="flex items-center gap-1.5">
-                <Star className="size-4 fill-amber-400 text-amber-400" />
-                <strong className="text-white">{salon.rating.toFixed(1)}</strong>
-                <span className="text-white/60">
-                  ({salon.reviewCount.toLocaleString()} reviews)
-                </span>
-              </span>
               <span className="flex items-center gap-1.5">
                 <MapPin className="size-4" />
                 {salon.address}, {salon.city}
               </span>
-              <span className="rounded-full border border-white/30 px-2.5 py-0.5 text-xs">
-                {priceLabel[salon.priceLevel]}
-              </span>
+              <a
+                href={`tel:${salon.businessPhone}`}
+                className="flex items-center gap-1.5 transition-colors hover:text-white"
+              >
+                <Phone className="size-4" />
+                {salon.businessPhone}
+              </a>
             </div>
           </div>
         </div>
@@ -103,29 +95,36 @@ export default async function SalonPage({ params }: PageProps<"/salons/[slug]">)
               {salon.description}
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-2">
-              {salon.amenities.map((a) => (
-                <span
-                  key={a}
-                  className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-600"
-                >
-                  <Check className="size-3.5 text-rose-500" />
-                  {a}
-                </span>
-              ))}
-            </div>
+            {salon.facilities.length > 0 && (
+              <div className="mt-6 flex flex-wrap gap-2">
+                {salon.facilities.map((f) => (
+                  <span
+                    key={f}
+                    className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-600"
+                  >
+                    <Check className="size-3.5 text-rose-500" />
+                    {f}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {salon.languages.length > 0 && (
+              <p className="mt-4 text-sm text-neutral-500">
+                Spoken here: <span className="text-ink">{salon.languages.join(", ")}</span>
+              </p>
+            )}
           </section>
 
-          {salon.galleryImageUrls.length > 0 && (
+          {salon.galleryUrls.length > 0 && (
             <section>
               <SectionHeading eyebrow="Gallery" title="Inside the space" />
               <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {salon.galleryImageUrls.map((url, i) => (
+                {salon.galleryUrls.map((url, i) => (
                   <div
                     key={url}
                     className={cn(
                       "group relative overflow-hidden rounded-3xl bg-neutral-100",
-                      // First tile spans two columns for an editorial rhythm.
                       i === 0 ? "col-span-2 aspect-4/3" : "aspect-square",
                     )}
                   >
@@ -142,70 +141,122 @@ export default async function SalonPage({ params }: PageProps<"/salons/[slug]">)
             </section>
           )}
 
-          {/* Services + staff + booking all live in one client island. */}
-          <SalonBooking salon={salon} />
-
-          <section>
+          {/* Service menu */}
+          <section id="services">
             <SectionHeading
-              eyebrow="Reviews"
-              title={`${salon.reviewCount.toLocaleString()} client reviews`}
+              eyebrow="Menu"
+              title={
+                salon.services.length
+                  ? `${salon.services.length} service${salon.services.length === 1 ? "" : "s"}`
+                  : "Services"
+              }
             />
-            <div className="mt-6 flex flex-col gap-4">
-              {salon.reviews.map((review) => (
-                <article
-                  key={review.id}
-                  className="rounded-3xl border border-neutral-100 bg-white p-6 transition-shadow duration-300 hover:shadow-[0_20px_44px_-32px_rgba(217,36,88,0.5)]"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="font-display flex size-11 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-rose-100 to-purple-100 text-rose-700">
-                      {review.customerName.charAt(0)}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="font-medium text-ink">{review.customerName}</p>
-                      <p className="truncate text-xs text-neutral-400">
-                        {review.serviceName} ·{" "}
-                        {new Date(review.date).toLocaleDateString("en-US", {
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </p>
-                    </div>
-                    <RatingStars
-                      rating={review.rating}
-                      size={14}
-                      className="ml-auto shrink-0"
-                    />
-                  </div>
-                  <p className="mt-4 leading-relaxed text-neutral-600">
-                    {review.comment}
-                  </p>
-                </article>
-              ))}
-            </div>
+            {salon.services.length > 0 ? (
+              <div className="mt-6 flex flex-col gap-3">
+                {salon.services.map((service) => (
+                  <ServiceCard key={service.id} service={service} />
+                ))}
+              </div>
+            ) : (
+              <p className="mt-6 rounded-3xl border border-dashed border-neutral-200 bg-neutral-50 p-8 text-center text-sm text-neutral-500">
+                {salon.name} has not published a service menu yet. Call them to ask what
+                they offer.
+              </p>
+            )}
           </section>
+
+          {/* Team */}
+          {salon.staff.length > 0 && (
+            <section>
+              <SectionHeading eyebrow="The team" title="Who you will meet" />
+              <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                {salon.staff.map((member) => (
+                  <StaffCard key={member.id} staff={member} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {(salon.bookingInstructions || salon.cancellationPolicy) && (
+            <section>
+              <SectionHeading eyebrow="Good to know" title="Booking & cancellation" />
+              <div className="mt-6 flex flex-col gap-4">
+                {salon.bookingInstructions && (
+                  <div className="rounded-3xl border border-neutral-100 bg-white p-6">
+                    <h3 className="font-display text-lg text-ink">How to book</h3>
+                    <p className="mt-2 leading-relaxed text-neutral-600">
+                      {salon.bookingInstructions}
+                    </p>
+                  </div>
+                )}
+                {salon.cancellationPolicy && (
+                  <div className="rounded-3xl border border-neutral-100 bg-white p-6">
+                    <h3 className="font-display text-lg text-ink">Cancellation policy</h3>
+                    <p className="mt-2 leading-relaxed text-neutral-600">
+                      {salon.cancellationPolicy}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
         </div>
 
         {/* Sidebar */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-4xl border border-neutral-100 bg-white p-6 shadow-[0_20px_50px_-34px_rgba(217,36,88,0.6)]">
-            <h3 className="font-display flex items-center gap-2 text-lg text-ink">
-              <Clock className="size-4 text-rose-500" />
-              Opening hours
-            </h3>
-            <ul className="mt-4 flex flex-col gap-2.5 text-sm">
-              {salon.openingHours.map((h) => (
-                <li key={h.day} className="flex items-center justify-between gap-4">
-                  <span className="text-neutral-500">{h.day}</span>
-                  {h.closed ? (
-                    <span className="text-neutral-400">Closed</span>
-                  ) : (
-                    <span className="font-medium text-ink">
-                      {h.open} – {h.close}
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ul>
+            <h3 className="font-display text-lg text-ink">Book with {salon.name}</h3>
+            <p className="mt-1 text-sm text-neutral-500">
+              Online booking is coming soon — reach the salon directly for now.
+            </p>
+
+            <div className="mt-4 flex flex-col gap-2.5">
+              <Button href={`tel:${salon.businessPhone}`} fullWidth icon={<Phone className="size-4" />}>
+                Call the salon
+              </Button>
+              {salon.whatsappNumber && (
+                <Button
+                  href={`https://wa.me/${salon.whatsappNumber.replace(/[^\d]/g, "")}`}
+                  variant="outline"
+                  fullWidth
+                  icon={<MessageCircle className="size-4" />}
+                >
+                  WhatsApp
+                </Button>
+              )}
+              <Button
+                href={`mailto:${salon.businessEmail}`}
+                variant="outline"
+                fullWidth
+                icon={<Mail className="size-4" />}
+              >
+                Email
+              </Button>
+            </div>
+
+            <div className="mt-6 border-t border-neutral-100 pt-5">
+              <h3 className="font-display flex items-center gap-2 text-lg text-ink">
+                <Clock className="size-4 text-rose-500" />
+                Opening hours
+              </h3>
+              <ul className="mt-4 flex flex-col gap-2.5 text-sm">
+                {DAYS_OF_WEEK.map((day) => {
+                  const hours = salon.weeklyHours[day];
+                  return (
+                    <li key={day} className="flex items-center justify-between gap-4">
+                      <span className="text-neutral-500">{DAY_LABELS[day]}</span>
+                      {hours.isOpen ? (
+                        <span className="font-medium text-ink">
+                          {hours.open} – {hours.close}
+                        </span>
+                      ) : (
+                        <span className="text-neutral-400">Closed</span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
 
             <div className="mt-6 border-t border-neutral-100 pt-5">
               <h3 className="font-display flex items-center gap-2 text-lg text-ink">
@@ -215,9 +266,35 @@ export default async function SalonPage({ params }: PageProps<"/salons/[slug]">)
               <p className="mt-2 text-sm leading-relaxed text-neutral-500">
                 {salon.address}
                 <br />
-                {salon.city}
+                {salon.city}, {salon.district}
               </p>
+              {salon.googleMapsUrl && (
+                <a
+                  href={salon.googleMapsUrl}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="mt-2 inline-block text-sm font-medium text-rose-600 hover:underline"
+                >
+                  Open in Google Maps
+                </a>
+              )}
             </div>
+
+            {socials.length > 0 && (
+              <div className="mt-6 flex flex-wrap gap-2 border-t border-neutral-100 pt-5">
+                {socials.map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="rounded-full border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-600 transition-colors hover:border-rose-300 hover:text-rose-600"
+                  >
+                    {s.label}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
         </aside>
       </div>

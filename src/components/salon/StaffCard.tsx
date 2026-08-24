@@ -1,77 +1,58 @@
-import { RatingStars } from "@/components/salon/RatingStars";
-import type { StaffMember } from "@/lib/types";
+import type { PublicStaffDTO } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Check } from "lucide-react";
 import Image from "next/image";
+
+/** Initials stand in when a team member has no photo uploaded. */
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]!.toUpperCase())
+    .join("");
+}
 
 export function StaffCard({
   staff,
-  selected,
-  onSelect,
   className,
 }: {
-  staff: StaffMember;
-  selected?: boolean;
-  onSelect?: (staff: StaffMember) => void;
+  staff: PublicStaffDTO;
   className?: string;
 }) {
-  const Wrapper = onSelect ? "button" : "div";
-
   return (
-    <Wrapper
-      type={onSelect ? "button" : undefined}
-      onClick={onSelect ? () => onSelect(staff) : undefined}
+    <div
       className={cn(
-        "group relative flex flex-col items-center gap-2.5 rounded-3xl border p-5 text-center transition-all duration-300",
-        onSelect && "cursor-pointer hover:-translate-y-1",
-        selected
-          ? "border-rose-300 bg-linear-to-b from-rose-50 to-white shadow-[0_18px_40px_-28px_var(--color-rose-500)]"
-          : "border-neutral-100 bg-white hover:border-rose-200 hover:shadow-[0_18px_40px_-32px_rgba(217,36,88,0.5)]",
+        "group relative flex flex-col items-center gap-2.5 rounded-3xl border border-neutral-100 bg-white p-5 text-center transition-all duration-300 hover:border-rose-200 hover:shadow-[0_18px_40px_-32px_rgba(217,36,88,0.5)]",
         className,
       )}
     >
-      {selected && (
-        <span className="absolute right-3 top-3 flex size-6 items-center justify-center rounded-full bg-rose-500 text-white">
-          <Check className="size-3.5" />
-        </span>
-      )}
-
       <div className="relative">
-        {/* Gradient ring that fills in on hover / selection. */}
-        <span
-          className={cn(
-            "absolute -inset-1 rounded-full bg-linear-to-br from-rose-400 via-purple-400 to-amber-300 transition-opacity duration-300",
-            selected ? "opacity-100" : "opacity-0 group-hover:opacity-100",
-          )}
-        />
-        <div className="relative size-20 overflow-hidden rounded-full bg-neutral-100 ring-3 ring-white">
-          {staff.avatarUrl && (
+        <span className="absolute -inset-1 rounded-full bg-linear-to-br from-rose-400 via-purple-400 to-amber-300 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <div className="relative size-20 overflow-hidden rounded-full bg-linear-to-br from-rose-100 to-purple-100 ring-3 ring-white">
+          {staff.photoUrl ? (
             <Image
-              src={staff.avatarUrl}
-              alt={staff.name}
+              src={staff.photoUrl}
+              alt={staff.fullName}
               fill
               sizes="80px"
               className="object-cover transition-transform duration-500 group-hover:scale-110"
             />
+          ) : (
+            <span className="font-display flex size-full items-center justify-center text-lg text-rose-700">
+              {initials(staff.fullName)}
+            </span>
           )}
         </div>
       </div>
 
       <div>
-        <p className="font-display text-base text-ink">{staff.name}</p>
-        <p className="text-xs tracking-tight text-rose-600">{staff.role}</p>
+        <p className="font-display text-base text-ink">{staff.fullName}</p>
+        <p className="text-xs tracking-tight text-rose-600">{staff.jobTitle}</p>
       </div>
 
-      <div className="flex items-center gap-1.5">
-        <RatingStars rating={staff.rating} size={12} />
-        <span className="text-xs text-neutral-400">({staff.reviewCount})</span>
-      </div>
-
-      {staff.specialties.length > 0 && (
-        <p className="line-clamp-1 text-xs text-neutral-400">
-          {staff.specialties.join(" · ")}
-        </p>
+      {staff.bio && (
+        <p className="line-clamp-2 text-xs leading-relaxed text-neutral-400">{staff.bio}</p>
       )}
-    </Wrapper>
+    </div>
   );
 }

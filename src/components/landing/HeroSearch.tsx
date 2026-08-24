@@ -5,15 +5,12 @@ import { MapPin, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const rotatingTerms = [
-  "a balayage colour",
-  "a hot stone massage",
-  "a gel manicure",
-  "a hydrafacial",
-  "a classic fade",
-];
-
-export function HeroSearch() {
+/**
+ * `suggestions` are real service names / category labels pulled from live
+ * salons; with none yet we fall back to a neutral prompt rather than
+ * advertising treatments nobody offers.
+ */
+export function HeroSearch({ suggestions = [] }: { suggestions?: string[] }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [city, setCity] = useState("");
@@ -21,12 +18,14 @@ export function HeroSearch() {
 
   // Cycle the placeholder so the empty state hints at what is searchable.
   useEffect(() => {
-    const id = setInterval(
-      () => setTermIndex((i) => (i + 1) % rotatingTerms.length),
-      2600,
-    );
+    if (suggestions.length < 2) return;
+    const id = setInterval(() => setTermIndex((i) => (i + 1) % suggestions.length), 2600);
     return () => clearInterval(id);
-  }, []);
+  }, [suggestions.length]);
+
+  const placeholder = suggestions.length
+    ? `Search ${suggestions[termIndex % suggestions.length]}...`
+    : "Search salons, treatments, or a city...";
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -50,7 +49,7 @@ export function HeroSearch() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             aria-label="Search treatments or salons"
-            placeholder={`Search ${rotatingTerms[termIndex]}...`}
+            placeholder={placeholder}
             className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-neutral-400"
           />
         </div>

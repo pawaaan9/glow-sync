@@ -4,8 +4,8 @@ import { CategoryIcon } from "@/components/salon/CategoryIcon";
 import { SalonCard } from "@/components/salon/SalonCard";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { useCities, useSalons } from "@/hooks/use-salons";
-import { serviceCategories } from "@/lib/mock-data";
+import { usePublicFilters, useSalons } from "@/hooks/use-salons";
+import { SALON_CATEGORY_LABELS } from "@/lib/shared";
 import type { SalonSearchFilters } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -15,18 +15,14 @@ import {
   Search,
   SearchX,
   SlidersHorizontal,
-  Star,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
 const sortOptions: { value: NonNullable<SalonSearchFilters["sort"]>; label: string }[] = [
-  { value: "recommended", label: "Recommended" },
-  { value: "rating", label: "Top rated" },
+  { value: "name", label: "Name (A–Z)" },
   { value: "price-low", label: "Price: Low to High" },
   { value: "price-high", label: "Price: High to Low" },
 ];
-
-const ratingOptions = [0, 4, 4.5];
 
 const selectClasses =
   "h-12 w-full appearance-none rounded-2xl border border-neutral-200 bg-white pr-10 text-sm text-ink outline-none transition-all duration-200 hover:border-neutral-300 focus:border-rose-400 focus:ring-4 focus:ring-rose-100";
@@ -43,31 +39,28 @@ export function SearchPageClient({
   const [query, setQuery] = useState(initialQuery);
   const [city, setCity] = useState(initialCity);
   const [category, setCategory] = useState(initialCategory);
-  const [minRating, setMinRating] = useState<number | undefined>(undefined);
-  const [sort, setSort] = useState<SalonSearchFilters["sort"]>("recommended");
+  const [sort, setSort] = useState<SalonSearchFilters["sort"]>("name");
 
   const filters = useMemo<SalonSearchFilters>(
     () => ({
       query: query || undefined,
       city: city || undefined,
       category: category || undefined,
-      minRating,
       sort,
     }),
-    [query, city, category, minRating, sort],
+    [query, city, category, sort],
   );
 
   const { data: salons, isLoading, isFetching } = useSalons(filters);
-  const { data: cities } = useCities();
+  const { data: facets } = usePublicFilters();
 
-  const hasFilters = Boolean(query || city || category || minRating);
+  const hasFilters = Boolean(query || city || category);
 
   function resetFilters() {
     setQuery("");
     setCity("");
     setCategory("");
-    setMinRating(undefined);
-    setSort("recommended");
+    setSort("name");
   }
 
   return (
@@ -86,11 +79,11 @@ export function SearchPageClient({
           </h1>
           <p className="text-neutral-500">
             {isLoading ? (
-              "Searching across every partner studio..."
+              "Searching listed salons..."
             ) : (
               <>
-                <strong className="text-ink">{salons?.length ?? 0}</strong> salons
-                match your filters
+                <strong className="text-ink">{salons?.length ?? 0}</strong>{" "}
+                {salons?.length === 1 ? "salon matches" : "salons match"} your filters
               </>
             )}
           </p>
@@ -118,7 +111,7 @@ export function SearchPageClient({
                   className={cn(selectClasses, "pl-11")}
                 >
                   <option value="">All cities</option>
-                  {cities?.map((c) => (
+                  {facets?.cities.map((c) => (
                     <option key={c} value={c}>
                       {c}
                     </option>
@@ -161,58 +154,31 @@ export function SearchPageClient({
               All
             </button>
 
-            {serviceCategories.map((c) => (
+            {facets?.categories.map((c) => (
               <button
-                key={c.id}
-                onClick={() => setCategory(c.id)}
+                key={c}
+                onClick={() => setCategory(c)}
                 className={cn(
                   "flex cursor-pointer items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium tracking-tight transition-all duration-200",
-                  category === c.id
+                  category === c
                     ? "border-transparent bg-linear-to-r from-rose-500 to-purple-500 text-white shadow-[0_6px_18px_-8px_var(--color-rose-500)]"
                     : "border-neutral-200 bg-white text-neutral-600 hover:-translate-y-0.5 hover:border-rose-300 hover:text-rose-700",
                 )}
               >
-                <CategoryIcon icon={c.icon} className="size-3.5" />
-                {c.name}
+                <CategoryIcon category={c} className="size-3.5" />
+                {SALON_CATEGORY_LABELS[c]}
               </button>
             ))}
 
-            <div className="ml-auto flex items-center gap-1.5">
-              {ratingOptions.map((r) => (
-                <button
-                  key={r}
-                  onClick={() => setMinRating(r === 0 ? undefined : r)}
-                  className={cn(
-                    "flex cursor-pointer items-center gap-1 rounded-full border px-3 py-2 text-xs font-medium transition-all duration-200",
-                    (minRating ?? 0) === r
-                      ? "border-transparent bg-ink text-white"
-                      : "border-neutral-200 bg-white text-neutral-600 hover:border-purple-300",
-                  )}
-                >
-                  {r !== 0 && (
-                    <Star
-                      className={cn(
-                        "size-3",
-                        (minRating ?? 0) === r
-                          ? "fill-amber-400 text-amber-400"
-                          : "fill-neutral-300 text-neutral-300",
-                      )}
-                    />
-                  )}
-                  {r === 0 ? "Any rating" : `${r}+`}
-                </button>
-              ))}
-
-              {hasFilters && (
-                <button
-                  onClick={resetFilters}
-                  className="flex cursor-pointer items-center gap-1 rounded-full px-3 py-2 text-xs font-medium text-neutral-500 transition-colors hover:text-rose-600"
-                >
-                  <RotateCcw className="size-3" />
-                  Reset
-                </button>
-              )}
-            </div>
+            {hasFilters && (
+              <button
+                onClick={resetFilters}
+                className="ml-auto flex cursor-pointer items-center gap-1 rounded-full px-3 py-2 text-xs font-medium text-neutral-500 transition-colors hover:text-rose-600"
+              >
+                <RotateCcw className="size-3" />
+                Reset
+              </button>
+            )}
           </div>
         </div>
 

@@ -13,12 +13,12 @@ export function getPostLoginRedirectPath(role: Role): string {
       return "/platform-admin";
     case ROLES.SALON_OWNER:
       return "/salon-owner/dashboard";
+    // Staff, receptionist, and customer portals do not exist yet — until they
+    // do, land these roles on the public site rather than a route that 404s.
     case ROLES.STAFF:
-      return "/dashboard/staff";
     case ROLES.RECEPTIONIST:
-      return "/dashboard/staff";
     case ROLES.CUSTOMER:
     default:
-      return "/dashboard/customer";
+      return "/";
   }
 }

@@ -2,17 +2,10 @@
 
 import { CategoryIcon } from "@/components/salon/CategoryIcon";
 import { Button } from "@/components/ui/Button";
-import { salons, serviceCategories } from "@/lib/mock-data";
+import { usePublicFilters } from "@/hooks/use-salons";
+import { SALON_CATEGORY_LABELS } from "@/lib/shared";
 import { cn } from "@/lib/utils";
-import {
-  ArrowRight,
-  ChevronDown,
-  Menu,
-  Search,
-  Sparkles,
-  Star,
-  X,
-} from "lucide-react";
+import { ArrowRight, ChevronDown, Menu, Search, Sparkles, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -20,12 +13,11 @@ import { useEffect, useRef, useState } from "react";
 
 const navLinks = [
   { href: "/search", label: "Find a Salon", mega: true },
-  { href: "/dashboard/customer", label: "My Bookings", badge: true },
+  { href: "/register/salon-owner", label: "List Your Salon" },
 ];
 
-const spotlight = salons.find((s) => s.featured) ?? salons[0];
-
 export function Navbar() {
+  const { data: facets } = usePublicFilters();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -106,62 +98,34 @@ export function Navbar() {
                     {link.mega && (
                       <ChevronDown className="size-3.5 transition-transform duration-300 group-hover/nav:rotate-180" />
                     )}
-                    {link.badge && (
-                      <span className="relative ml-0.5 flex size-1.5">
-                        <span className="animate-pulse-ring absolute inline-flex size-full rounded-full bg-rose-400" />
-                        <span className="relative inline-flex size-1.5 rounded-full bg-rose-500" />
-                      </span>
-                    )}
                   </Link>
 
                   {link.mega && (
-                    <div className="pointer-events-none absolute left-1/2 top-full z-50 w-[30rem] -translate-x-1/2 translate-y-2 opacity-0 transition-all duration-300 group-hover/nav:pointer-events-auto group-hover/nav:translate-y-3 group-hover/nav:opacity-100">
+                    <div className="pointer-events-none absolute left-1/2 top-full z-50 w-96 -translate-x-1/2 translate-y-2 opacity-0 transition-all duration-300 group-hover/nav:pointer-events-auto group-hover/nav:translate-y-3 group-hover/nav:opacity-100">
                       <div className="grain relative overflow-hidden rounded-3xl border border-white/70 bg-white p-5 shadow-[0_30px_60px_-24px_rgba(27,20,32,0.35)]">
-                        <div className="grid grid-cols-[1fr_auto] gap-5">
+                        {facets && facets.categories.length > 0 ? (
                           <div>
                             <p className="eyebrow text-rose-600">Browse by category</p>
                             <div className="mt-3 grid grid-cols-2 gap-1.5">
-                              {serviceCategories.map((c) => (
+                              {facets.categories.map((c) => (
                                 <Link
-                                  key={c.id}
-                                  href={`/search?category=${c.id}`}
+                                  key={c}
+                                  href={`/search?category=${c}`}
                                   className="group/cat flex items-center gap-2.5 rounded-2xl px-2.5 py-2 text-sm text-neutral-700 transition-colors hover:bg-rose-50 hover:text-rose-700"
                                 >
                                   <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-rose-100 to-purple-100 text-rose-600 transition-transform duration-300 group-hover/cat:scale-110">
-                                    <CategoryIcon icon={c.icon} className="size-4" />
+                                    <CategoryIcon category={c} className="size-4" />
                                   </span>
-                                  {c.name}
+                                  {SALON_CATEGORY_LABELS[c]}
                                 </Link>
                               ))}
                             </div>
                           </div>
-
-                          <Link
-                            href={`/salons/${spotlight.slug}`}
-                            className="group/spot relative block w-36 shrink-0 overflow-hidden rounded-2xl"
-                          >
-                            <Image
-                              src={spotlight.coverImageUrl}
-                              alt={spotlight.name}
-                              fill
-                              sizes="144px"
-                              className="object-cover transition-transform duration-500 group-hover/spot:scale-110"
-                            />
-                            <div className="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent" />
-                            <span className="absolute left-2 top-2 rounded-full bg-amber-400 px-2 py-0.5 text-[0.6rem] font-semibold text-amber-950">
-                              Trending
-                            </span>
-                            <div className="absolute inset-x-2 bottom-2">
-                              <p className="truncate text-xs font-medium text-white">
-                                {spotlight.name}
-                              </p>
-                              <span className="mt-0.5 flex items-center gap-1 text-[0.65rem] text-white/80">
-                                <Star className="size-2.5 fill-amber-400 text-amber-400" />
-                                {spotlight.rating.toFixed(1)}
-                              </span>
-                            </div>
-                          </Link>
-                        </div>
+                        ) : (
+                          <p className="px-1 text-sm text-neutral-500">
+                            No salons are listed yet.
+                          </p>
+                        )}
 
                         <Link
                           href="/search"
@@ -248,22 +212,24 @@ export function Navbar() {
             />
           </form>
 
-          <div className="px-4 pt-3">
-            <p className="eyebrow text-rose-600">Browse by category</p>
-            <div className="mt-2.5 grid grid-cols-3 gap-2">
-              {serviceCategories.map((c) => (
-                <Link
-                  key={c.id}
-                  href={`/search?category=${c.id}`}
-                  onClick={() => setOpen(false)}
-                  className="flex flex-col items-center gap-1.5 rounded-2xl border border-neutral-100 py-3 text-center text-xs font-medium text-neutral-600 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
-                >
-                  <CategoryIcon icon={c.icon} className="size-4 text-rose-500" />
-                  {c.name}
-                </Link>
-              ))}
+          {facets && facets.categories.length > 0 && (
+            <div className="px-4 pt-3">
+              <p className="eyebrow text-rose-600">Browse by category</p>
+              <div className="mt-2.5 grid grid-cols-3 gap-2">
+                {facets.categories.map((c) => (
+                  <Link
+                    key={c}
+                    href={`/search?category=${c}`}
+                    onClick={() => setOpen(false)}
+                    className="flex flex-col items-center gap-1.5 rounded-2xl border border-neutral-100 py-3 text-center text-xs font-medium text-neutral-600 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+                  >
+                    <CategoryIcon category={c} className="size-4 text-rose-500" />
+                    {SALON_CATEGORY_LABELS[c]}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="flex flex-col gap-1 px-4 py-3">
             {navLinks.map((link) => (

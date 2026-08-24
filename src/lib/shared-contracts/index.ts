@@ -18,4 +18,5 @@ export * from "./audit";
 export * from "./api-errors";
 export * from "./collections";
 export * from "./types";
+export * from "./public";
 export * from "./validation";

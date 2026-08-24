@@ -1,4 +1,3 @@
-import { RatingStars } from "@/components/salon/RatingStars";
 import { Sparkles } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -21,7 +20,8 @@ export function AuthShell({
   subtitle: string;
   children: ReactNode;
   footer: ReactNode;
-  aside: { quote: string; author: string; role: string };
+  /** Product copy for the brand panel — never a testimonial we cannot attribute. */
+  aside: { headline: string; body: string };
 }) {
   return (
     <div className="flex min-h-screen bg-neutral-50">
@@ -52,13 +52,10 @@ export function AuthShell({
         </div>
 
         <div className="relative">
-          <RatingStars rating={5} size={16} />
-          <blockquote className="font-display mt-4 max-w-md text-3xl leading-snug text-white">
-            {aside.quote}
-          </blockquote>
-          <p className="mt-4 text-sm text-white/60">
-            <span className="text-white">{aside.author}</span> · {aside.role}
-          </p>
+          <h2 className="font-display max-w-md text-3xl leading-snug text-white">
+            {aside.headline}
+          </h2>
+          <p className="mt-4 max-w-md text-sm leading-relaxed text-white/60">{aside.body}</p>
         </div>
 
         <p className="relative text-xs text-white/30">

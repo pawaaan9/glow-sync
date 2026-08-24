@@ -15,9 +15,8 @@ export default function LoginPage() {
       title="Log in to your glow"
       subtitle="Pick up where you left off — your bookings, favourites, and rebooks are waiting."
       aside={{
-        quote: "Booking takes twenty seconds and I have never lost a slot again.",
-        author: "Priya S.",
-        role: "GlowSync member since 2024",
+        headline: "Run your salon from one place.",
+        body: "Bookings, services, staff, and clients — manage all of it from your GlowSync dashboard.",
       }}
       footer={
         <>
