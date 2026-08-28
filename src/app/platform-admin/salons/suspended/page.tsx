@@ -1,11 +1,12 @@
 "use client";
 
-import { Pagination } from "@/components/ui/Pagination";
-import { QueryStates } from "@/components/ui/QueryStates";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Pagination } from "@/components/ui/Pagination";
 import { useReactivateSalon, useSalons } from "@/hooks/use-platform-admin";
-import { SALON_STATUS } from "@/lib/shared";
-import { Eye, RotateCcw } from "lucide-react";
+import { SALON_STATUS, type SalonDTO } from "@/lib/shared";
+import { Eye, RotateCcw, ShieldOff } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -22,79 +23,86 @@ export default function SuspendedSalonsPage() {
   });
   const reactivate = useReactivateSalon();
 
+  const columns: DataTableColumn<SalonDTO>[] = [
+    {
+      key: "salon",
+      header: "Salon",
+      cardSlot: "primary",
+      cell: (salon) => <span className="font-medium text-ink">{salon.name}</span>,
+    },
+    {
+      key: "owner",
+      header: "Owner",
+      cell: (salon) => <span className="text-neutral-600">{salon.ownerName ?? "—"}</span>,
+    },
+    {
+      key: "reason",
+      header: "Suspension reason",
+      className: "max-w-xs",
+      cell: (salon) => (
+        <span className="line-clamp-2 text-neutral-500" title={salon.suspendedReason ?? undefined}>
+          {salon.suspendedReason ?? "—"}
+        </span>
+      ),
+    },
+    {
+      key: "suspended",
+      header: "Suspended",
+      cell: (salon) => (
+        <span className="whitespace-nowrap text-neutral-500">
+          {new Date(salon.updatedAt).toLocaleDateString()}
+        </span>
+      ),
+    },
+  ];
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="font-display text-2xl text-ink">Suspended salons</h1>
-      <p className="mt-1 text-sm text-neutral-500">
-        Hidden from public search; salon-management APIs are blocked for these salons.
-      </p>
+    <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <PageHeader
+        eyebrow="Moderation"
+        title="Suspended salons"
+        description="Hidden from public search; salon-management APIs are blocked for these salons."
+        icon={ShieldOff}
+      />
 
-      <div className="mt-6 overflow-hidden rounded-3xl border border-neutral-100 bg-white">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-neutral-100 bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500">
-              <tr>
-                <th className="px-4 py-3 font-medium">Salon</th>
-                <th className="px-4 py-3 font-medium">Owner</th>
-                <th className="px-4 py-3 font-medium">Suspension reason</th>
-                <th className="px-4 py-3 font-medium">Suspended date</th>
-                <th className="px-4 py-3 font-medium">
-                  <span className="sr-only">Actions</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-50">
-              <QueryStates
-                isLoading={isLoading}
-                isError={isError}
-                isEmpty={!isLoading && (data?.items.length ?? 0) === 0}
-                emptyMessage="No suspended salons."
-                colSpan={5}
-              >
-                {data?.items.map((salon) => (
-                  <tr key={salon.id} className="transition-colors hover:bg-neutral-50">
-                    <td className="px-4 py-3 font-medium text-ink">{salon.name}</td>
-                    <td className="px-4 py-3 text-neutral-600">{salon.ownerName ?? "—"}</td>
-                    <td className="max-w-xs truncate px-4 py-3 text-neutral-500">
-                      {salon.suspendedReason ?? "—"}
-                    </td>
-                    <td className="px-4 py-3 text-neutral-500">
-                      {new Date(salon.updatedAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <Link
-                          href={`/platform-admin/salon-applications/${salon.id}`}
-                          className="flex items-center gap-1 text-sm font-medium text-rose-600 hover:underline"
-                        >
-                          <Eye className="size-3.5" />
-                          View
-                        </Link>
-                        <button
-                          onClick={() => setReactivateTarget({ id: salon.id, name: salon.name })}
-                          className="flex cursor-pointer items-center gap-1 text-sm font-medium text-neutral-500 hover:text-emerald-600"
-                        >
-                          <RotateCcw className="size-3.5" />
-                          Reactivate
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </QueryStates>
-            </tbody>
-          </table>
-        </div>
-
-        {data && (
-          <Pagination
-            page={data.page}
-            totalPages={data.totalPages}
-            total={data.total}
-            onPageChange={setPage}
-          />
+      <DataTable
+        columns={columns}
+        rows={data?.items ?? []}
+        rowKey={(salon) => salon.id}
+        isLoading={isLoading}
+        isError={isError}
+        emptyMessage="No suspended salons — everything is in good standing."
+        emptyIcon={ShieldOff}
+        actions={(salon) => (
+          <>
+            <Link
+              href={`/platform-admin/salon-applications/${salon.id}`}
+              className="flex items-center gap-1 text-sm font-medium text-rose-600 hover:underline"
+            >
+              <Eye className="size-3.5" />
+              View
+            </Link>
+            <button
+              type="button"
+              onClick={() => setReactivateTarget({ id: salon.id, name: salon.name })}
+              className="flex cursor-pointer items-center gap-1 text-sm font-medium text-neutral-500 transition-colors hover:text-emerald-600"
+            >
+              <RotateCcw className="size-3.5" />
+              Reactivate
+            </button>
+          </>
         )}
-      </div>
+        footer={
+          data && (
+            <Pagination
+              page={data.page}
+              totalPages={data.totalPages}
+              total={data.total}
+              onPageChange={setPage}
+            />
+          )
+        }
+      />
 
       <ConfirmDialog
         open={Boolean(reactivateTarget)}

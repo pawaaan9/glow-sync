@@ -1,14 +1,15 @@
 "use client";
 
-import { Pagination } from "@/components/ui/Pagination";
-import { QueryStates } from "@/components/ui/QueryStates";
-import { ReasonModal } from "@/components/ui/ReasonModal";
+import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { Input } from "@/components/ui/Input";
-import { useSalons, useSuspendSalon } from "@/hooks/use-platform-admin";
-import { SALON_STATUS, salonCategoryLabel } from "@/lib/shared";
-import { Eye, Search, ShieldOff } from "lucide-react";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Pagination } from "@/components/ui/Pagination";
+import { ReasonModal } from "@/components/ui/ReasonModal";
+import { useSalonCategories, useSalons, useSuspendSalon } from "@/hooks/use-platform-admin";
+import { SALON_STATUS, salonCategoryLabel, type SalonDTO } from "@/lib/shared";
+import { Eye, Search, ShieldOff, Store } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function ApprovedSalonsPage() {
   const [search, setSearch] = useState("");
@@ -30,90 +31,124 @@ export default function ApprovedSalonsPage() {
     page,
     limit: 20,
   });
+  const { data: categories } = useSalonCategories();
   const suspend = useSuspendSalon();
 
-  return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="font-display text-2xl text-ink">Approved salons</h1>
-      <p className="mt-1 text-sm text-neutral-500">Active salons currently live on GlowSync.</p>
+  const categoryLabels = useMemo(
+    () => Object.fromEntries((categories ?? []).map((c) => [c.slug, c.label])),
+    [categories],
+  );
 
-      <div className="mt-6 rounded-3xl border border-neutral-100 bg-white p-4">
+  const columns: DataTableColumn<SalonDTO>[] = [
+    {
+      key: "salon",
+      header: "Salon",
+      cardSlot: "primary",
+      cell: (salon) => (
+        <div className="flex items-center gap-3">
+          <span className="font-display flex size-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-rose-100 to-purple-100 text-xs text-rose-600">
+            {salon.name.charAt(0).toUpperCase()}
+          </span>
+          <div className="min-w-0">
+            <p className="truncate font-medium text-ink">{salon.name}</p>
+            <p className="truncate text-xs text-neutral-400">{salon.city}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "owner",
+      header: "Owner",
+      cell: (salon) => (
+        <div className="min-w-0">
+          <p className="truncate text-neutral-700">{salon.ownerName ?? "—"}</p>
+          <p className="truncate text-xs text-neutral-400">{salon.ownerEmail ?? ""}</p>
+        </div>
+      ),
+    },
+    {
+      key: "category",
+      header: "Category",
+      cell: (salon) => (
+        <span className="text-neutral-600">
+          {salonCategoryLabel(salon.category, categoryLabels)}
+        </span>
+      ),
+    },
+    {
+      key: "district",
+      header: "District",
+      cell: (salon) => <span className="text-neutral-600">{salon.district}</span>,
+    },
+    {
+      key: "approved",
+      header: "Approved",
+      cell: (salon) => (
+        <span className="whitespace-nowrap text-neutral-500">
+          {salon.approvedAt ? new Date(salon.approvedAt).toLocaleDateString() : "—"}
+        </span>
+      ),
+    },
+  ];
+
+  return (
+    <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <PageHeader
+        eyebrow="Directory"
+        title="Approved salons"
+        description="Active salons currently live on GlowSync."
+        icon={Store}
+      />
+
+      <div className="rounded-3xl border border-neutral-100 bg-white p-4">
         <Input
           icon={<Search className="size-4" />}
-          placeholder="Search salons..."
+          placeholder="Search by salon, email, or phone..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-3xl border border-neutral-100 bg-white">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-neutral-100 bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500">
-              <tr>
-                <th className="px-4 py-3 font-medium">Salon</th>
-                <th className="px-4 py-3 font-medium">Owner</th>
-                <th className="px-4 py-3 font-medium">Category</th>
-                <th className="px-4 py-3 font-medium">District</th>
-                <th className="px-4 py-3 font-medium">Approved</th>
-                <th className="px-4 py-3 font-medium">
-                  <span className="sr-only">Actions</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-50">
-              <QueryStates
-                isLoading={isLoading}
-                isError={isError}
-                isEmpty={!isLoading && (data?.items.length ?? 0) === 0}
-                emptyMessage="No approved salons yet."
-                colSpan={6}
-              >
-                {data?.items.map((salon) => (
-                  <tr key={salon.id} className="transition-colors hover:bg-neutral-50">
-                    <td className="px-4 py-3 font-medium text-ink">{salon.name}</td>
-                    <td className="px-4 py-3 text-neutral-600">{salon.ownerName ?? "—"}</td>
-                    <td className="px-4 py-3 text-neutral-600">
-                      {salonCategoryLabel(salon.category)}
-                    </td>
-                    <td className="px-4 py-3 text-neutral-600">{salon.district}</td>
-                    <td className="px-4 py-3 text-neutral-500">
-                      {salon.approvedAt ? new Date(salon.approvedAt).toLocaleDateString() : "—"}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <Link
-                          href={`/platform-admin/salon-applications/${salon.id}`}
-                          className="flex items-center gap-1 text-sm font-medium text-rose-600 hover:underline"
-                        >
-                          <Eye className="size-3.5" />
-                          View
-                        </Link>
-                        <button
-                          onClick={() => setSuspendTarget({ id: salon.id, name: salon.name })}
-                          className="flex cursor-pointer items-center gap-1 text-sm font-medium text-neutral-500 hover:text-red-600"
-                        >
-                          <ShieldOff className="size-3.5" />
-                          Suspend
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </QueryStates>
-            </tbody>
-          </table>
-        </div>
-
-        {data && (
-          <Pagination
-            page={data.page}
-            totalPages={data.totalPages}
-            total={data.total}
-            onPageChange={setPage}
-          />
+      <DataTable
+        columns={columns}
+        rows={data?.items ?? []}
+        rowKey={(salon) => salon.id}
+        isLoading={isLoading}
+        isError={isError}
+        emptyMessage={
+          debouncedSearch ? "No salons match your search." : "No approved salons yet."
+        }
+        emptyIcon={Store}
+        actions={(salon) => (
+          <>
+            <Link
+              href={`/platform-admin/salon-applications/${salon.id}`}
+              className="flex items-center gap-1 text-sm font-medium text-rose-600 hover:underline"
+            >
+              <Eye className="size-3.5" />
+              View
+            </Link>
+            <button
+              type="button"
+              onClick={() => setSuspendTarget({ id: salon.id, name: salon.name })}
+              className="flex cursor-pointer items-center gap-1 text-sm font-medium text-neutral-500 transition-colors hover:text-red-600"
+            >
+              <ShieldOff className="size-3.5" />
+              Suspend
+            </button>
+          </>
         )}
-      </div>
+        footer={
+          data && (
+            <Pagination
+              page={data.page}
+              totalPages={data.totalPages}
+              total={data.total}
+              onPageChange={setPage}
+            />
+          )
+        }
+      />
 
       <ReasonModal
         open={Boolean(suspendTarget)}

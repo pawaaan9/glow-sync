@@ -39,20 +39,43 @@ export function Badge({ variant = "neutral", className, ...props }: BadgeProps) 
   );
 }
 
-const statusVariant: Record<string, BadgeVariant> = {
-  pending: "warning",
-  confirmed: "purple",
-  completed: "success",
-  cancelled: "danger",
-  active: "success",
-  inactive: "neutral",
+/**
+ * Tone + human label for every status string that reaches a badge: salon
+ * lifecycle (SALON_STATUS), owner verification (VERIFICATION_STATUS), and
+ * verification-history actions. Keys are the wire values —
+ * UPPERCASE_SNAKE — so a raw DTO field can be passed straight in.
+ */
+const statusMeta: Record<string, { variant: BadgeVariant; label: string }> = {
+  // Salon lifecycle
+  PENDING_APPROVAL: { variant: "warning", label: "Pending" },
+  ACTIVE: { variant: "success", label: "Active" },
+  REJECTED: { variant: "danger", label: "Rejected" },
+  SUSPENDED: { variant: "neutral", label: "Suspended" },
+  // Owner verification
+  PENDING_VERIFICATION: { variant: "warning", label: "Pending" },
+  APPROVED: { variant: "success", label: "Approved" },
+  // Verification-history actions
+  SUBMITTED: { variant: "purple", label: "Submitted" },
+  RESUBMITTED: { variant: "purple", label: "Resubmitted" },
+  REACTIVATED: { variant: "success", label: "Reactivated" },
 };
 
-export function StatusBadge({ status }: { status: string }) {
+/** Title-cases an unmapped status so a new value never renders as raw SNAKE_CASE. */
+function humanizeStatus(status: string) {
+  return status
+    .toLowerCase()
+    .split(/[_\s-]+/)
+    .filter(Boolean)
+    .map((word, i) => (i === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word))
+    .join(" ");
+}
+
+export function StatusBadge({ status, className }: { status: string; className?: string }) {
+  const meta = statusMeta[status];
   return (
-    <Badge variant={statusVariant[status] ?? "neutral"} className="capitalize">
-      <span className="size-1.5 rounded-full bg-current opacity-70" />
-      {status}
+    <Badge variant={meta?.variant ?? "neutral"} className={cn("whitespace-nowrap", className)}>
+      <span className="size-1.5 shrink-0 rounded-full bg-current opacity-70" />
+      {meta?.label ?? humanizeStatus(status)}
     </Badge>
   );
 }
