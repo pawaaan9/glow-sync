@@ -8,12 +8,8 @@ import { apiPost } from "@/lib/api/http";
 import { auth } from "@/lib/firebase/client";
 import { uploadSalonLogo, uploadVerificationDocument } from "@/lib/api/salonOwner";
 import { cn } from "@/lib/utils";
-import {
-  ALL_SALON_CATEGORIES,
-  SALON_CATEGORY_LABELS,
-  registerSalonOwnerSchema,
-  type RegisterSalonOwnerInput,
-} from "@/lib/shared";
+import { usePublicSalonCategories } from "@/hooks/use-salons";
+import { registerSalonOwnerSchema, type RegisterSalonOwnerInput } from "@/lib/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Check, ChevronDown, FileImage, FileText, Lock, Mail, Sparkles, Store, User } from "lucide-react";
@@ -101,6 +97,8 @@ function StepIndicator({ step }: { step: number }) {
 
 export function RegisterSalonOwnerForm() {
   const router = useRouter();
+  const { data: categories } = usePublicSalonCategories();
+  const categoryOptions = (categories ?? []).map((c) => ({ value: c.slug, label: c.label }));
   const [step, setStep] = useState(0);
   const [logo, setLogo] = useState<File | null>(null);
   const [document, setDocument] = useState<File | null>(null);
@@ -295,11 +293,11 @@ export function RegisterSalonOwnerForm() {
                   {...register("salon.category")}
                 >
                   <option value="" disabled>
-                    Select a category
+                    {categoryOptions.length ? "Select a category" : "No categories available"}
                   </option>
-                  {ALL_SALON_CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {SALON_CATEGORY_LABELS[c]}
+                  {categoryOptions.map((c) => (
+                    <option key={c.value} value={c.value}>
+                      {c.label}
                     </option>
                   ))}
                 </select>

@@ -13,7 +13,7 @@ import {
   useSuspendSalon,
 } from "@/hooks/use-platform-admin";
 import { getVerificationDocumentDownloadUrl } from "@/lib/api/platformAdmin";
-import { SALON_CATEGORY_LABELS, SALON_STATUS } from "@/lib/shared";
+import { salonCategoryLabel, SALON_STATUS } from "@/lib/shared";
 import { CheckCircle2, FileText, RotateCcw, ShieldOff, XCircle } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
@@ -119,7 +119,7 @@ export default function SalonApplicationDetailPage() {
               <section className="rounded-3xl border border-neutral-100 bg-white p-6">
                 <h2 className="font-display text-lg text-ink">Salon details</h2>
                 <dl className="mt-4 flex flex-col gap-3 text-sm">
-                  <Row label="Category" value={SALON_CATEGORY_LABELS[data.salon.category]} />
+                  <Row label="Category" value={salonCategoryLabel(data.salon.category)} />
                   <Row label="Business phone" value={data.salon.businessPhone} />
                   <Row label="Business email" value={data.salon.businessEmail} />
                   <Row label="Address" value={data.salon.address} />

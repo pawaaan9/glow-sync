@@ -1,6 +1,6 @@
 import { CategoryIcon } from "@/components/salon/CategoryIcon";
 import { Badge } from "@/components/ui/Badge";
-import { SALON_CATEGORY_LABELS } from "@/lib/shared";
+import { salonCategoryLabel } from "@/lib/shared";
 import type { PublicSalonSummaryDTO } from "@/lib/types";
 import { cn, formatCurrency } from "@/lib/utils";
 import { ArrowUpRight, MapPin } from "lucide-react";
@@ -12,11 +12,11 @@ export function SalonCard({
   salon,
   className,
   style,
-}: {
+}: Readonly<{
   salon: PublicSalonSummaryDTO;
   className?: string;
   style?: CSSProperties;
-}) {
+}>) {
   const cover = salon.coverImageUrl ?? salon.logoUrl;
 
   return (
@@ -49,7 +49,7 @@ export function SalonCard({
         <div className="absolute inset-0 bg-linear-to-t from-ink/70 via-ink/10 to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-90" />
 
         <div className="absolute left-4 top-4 flex flex-wrap gap-1.5">
-          <Badge variant="glass">{SALON_CATEGORY_LABELS[salon.category]}</Badge>
+          <Badge variant="glass">{salonCategoryLabel(salon.category)}</Badge>
         </div>
 
         <span className="absolute right-4 top-4 flex size-10 translate-y-2 items-center justify-center rounded-full bg-white text-ink opacity-0 shadow-lg transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">

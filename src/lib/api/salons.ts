@@ -1,4 +1,5 @@
 import { apiGet } from "./http";
+import type { SalonCategoryDTO } from "@/lib/shared";
 import type {
   PublicFiltersDTO,
   PublicSalonDetailDTO,
@@ -37,4 +38,9 @@ export async function getSalonBySlug(slug: string): Promise<PublicSalonDetailDTO
 
 export async function getPublicFilters(): Promise<PublicFiltersDTO> {
   return apiGet<PublicFiltersDTO>("/api/public/filters", undefined, { auth: false });
+}
+
+/** Active salon categories a new salon can register under. */
+export async function getPublicSalonCategories(): Promise<SalonCategoryDTO[]> {
+  return apiGet<SalonCategoryDTO[]>("/api/public/salon-categories", undefined, { auth: false });
 }

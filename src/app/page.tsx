@@ -4,7 +4,7 @@ import { CategoryIcon } from "@/components/salon/CategoryIcon";
 import { SalonCard } from "@/components/salon/SalonCard";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/Card";
-import { SALON_CATEGORY_LABELS } from "@/lib/shared";
+import { salonCategoryLabel } from "@/lib/shared";
 import { cn } from "@/lib/utils";
 import {
   getPublicFilters,
@@ -65,7 +65,7 @@ export default async function Home() {
 
   // Placeholder hints and the marquee both come from live categories, so the
   // page never advertises a treatment no listed salon actually offers.
-  const categoryLabels = filters.categories.map((c) => SALON_CATEGORY_LABELS[c]);
+  const categoryLabels = filters.categories.map((c) => salonCategoryLabel(c));
 
   const stats = [
     { value: String(salons.length), label: salons.length === 1 ? "Listed salon" : "Listed salons" },
@@ -131,7 +131,7 @@ export default async function Home() {
                   href={`/search?category=${c}`}
                   className="rounded-full border border-neutral-200/80 bg-white/70 px-3 py-1 text-neutral-600 backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:border-rose-300 hover:text-rose-700"
                 >
-                  {SALON_CATEGORY_LABELS[c]}
+                  {salonCategoryLabel(c)}
                 </Link>
               ))}
             </div>
@@ -171,7 +171,7 @@ export default async function Home() {
                   <CategoryIcon category={category} className="size-6" />
                 </span>
                 <span className="font-display relative text-base text-ink">
-                  {SALON_CATEGORY_LABELS[category]}
+                  {salonCategoryLabel(category)}
                 </span>
               </Link>
             ))}

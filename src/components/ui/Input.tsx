@@ -56,11 +56,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             </button>
           )}
         </div>
-        {error ? (
-          <p className="text-xs text-red-600">{error}</p>
-        ) : hint ? (
-          <p className="text-xs text-neutral-500">{hint}</p>
-        ) : null}
+        {error && <p className="text-xs text-red-600">{error}</p>}
+        {!error && hint && <p className="text-xs text-neutral-500">{hint}</p>}
       </div>
     );
   },

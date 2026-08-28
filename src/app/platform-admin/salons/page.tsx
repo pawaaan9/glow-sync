@@ -5,7 +5,7 @@ import { QueryStates } from "@/components/ui/QueryStates";
 import { ReasonModal } from "@/components/ui/ReasonModal";
 import { Input } from "@/components/ui/Input";
 import { useSalons, useSuspendSalon } from "@/hooks/use-platform-admin";
-import { SALON_STATUS, SALON_CATEGORY_LABELS } from "@/lib/shared";
+import { SALON_STATUS, salonCategoryLabel } from "@/lib/shared";
 import { Eye, Search, ShieldOff } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -74,7 +74,7 @@ export default function ApprovedSalonsPage() {
                     <td className="px-4 py-3 font-medium text-ink">{salon.name}</td>
                     <td className="px-4 py-3 text-neutral-600">{salon.ownerName ?? "—"}</td>
                     <td className="px-4 py-3 text-neutral-600">
-                      {SALON_CATEGORY_LABELS[salon.category]}
+                      {salonCategoryLabel(salon.category)}
                     </td>
                     <td className="px-4 py-3 text-neutral-600">{salon.district}</td>
                     <td className="px-4 py-3 text-neutral-500">

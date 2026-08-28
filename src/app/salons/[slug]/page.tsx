@@ -5,7 +5,7 @@ import { StaffCard } from "@/components/salon/StaffCard";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/Card";
-import { DAYS_OF_WEEK, DAY_LABELS, SALON_CATEGORY_LABELS } from "@/lib/shared";
+import { DAYS_OF_WEEK, DAY_LABELS, salonCategoryLabel } from "@/lib/shared";
 import { cn } from "@/lib/utils";
 import {
   getPublicSalonBySlug,
@@ -62,7 +62,7 @@ export default async function SalonPage({ params }: PageProps<"/salons/[slug]">)
           <div className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
             <Badge variant="glass" className="inline-flex items-center gap-1.5">
               <CategoryIcon category={salon.category} className="size-3.5" />
-              {SALON_CATEGORY_LABELS[salon.category]}
+              {salonCategoryLabel(salon.category)}
             </Badge>
 
             <h1 className="font-display font-display-tight mt-4 text-[clamp(2.25rem,6vw,4rem)] text-white">

@@ -1,5 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { getPublicFilters, getSalonBySlug, getSalons } from "@/lib/api";
+import {
+  getPublicFilters,
+  getPublicSalonCategories,
+  getSalonBySlug,
+  getSalons,
+} from "@/lib/api";
 import type { SalonSearchFilters } from "@/lib/types";
 
 export function useSalons(filters: SalonSearchFilters = {}) {
@@ -22,5 +27,14 @@ export function usePublicFilters() {
   return useQuery({
     queryKey: ["public-filters"],
     queryFn: getPublicFilters,
+  });
+}
+
+/** Active salon categories offered on the salon-owner registration form. */
+export function usePublicSalonCategories() {
+  return useQuery({
+    queryKey: ["public-salon-categories"],
+    queryFn: getPublicSalonCategories,
+    staleTime: 5 * 60 * 1000,
   });
 }

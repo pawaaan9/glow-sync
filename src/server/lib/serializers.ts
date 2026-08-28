@@ -3,6 +3,7 @@ import { defaultWeeklyHours } from "@/lib/shared";
 import type {
   UserDTO,
   SalonDTO,
+  SalonCategoryDTO,
   SalonVerificationHistoryDTO,
   AuditLogDTO,
   NotificationDTO,
@@ -15,6 +16,7 @@ import type {
 import type {
   UserDocument,
   SalonDocument,
+  SalonCategoryDocument,
   SalonVerificationHistoryDocument,
   AuditLogDocument,
   NotificationDocument,
@@ -106,6 +108,22 @@ export function serializeSalon(doc: SalonDocument): SalonDTO {
     updatedAt: toIsoRequired(doc.updatedAt),
     approvedAt: toIso(doc.approvedAt),
     approvedBy: doc.approvedBy,
+  };
+}
+
+export function serializeSalonCategory(
+  doc: SalonCategoryDocument,
+  salonCount = 0,
+): SalonCategoryDTO {
+  return {
+    id: doc.id,
+    slug: doc.slug,
+    label: doc.label,
+    isActive: doc.isActive,
+    sortOrder: doc.sortOrder,
+    salonCount,
+    createdAt: toIsoRequired(doc.createdAt),
+    updatedAt: toIsoRequired(doc.updatedAt),
   };
 }
 

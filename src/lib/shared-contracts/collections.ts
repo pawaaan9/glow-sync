@@ -4,6 +4,8 @@ export const COLLECTIONS = {
   /** Platform (super) admin accounts live apart from ordinary users. */
   SUPER_ADMINS: "superAdmins",
   SALONS: "salons",
+  /** Super-admin-managed salon categories offered at registration. */
+  SALON_CATEGORIES: "salonCategories",
   SALON_VERIFICATION_HISTORY: "salonVerificationHistory",
   AUDIT_LOGS: "auditLogs",
   NOTIFICATIONS: "notifications",

@@ -4,13 +4,8 @@ import { Pagination } from "@/components/ui/Pagination";
 import { QueryStates } from "@/components/ui/QueryStates";
 import { StatusBadge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
-import { useSalonApplications } from "@/hooks/use-platform-admin";
-import {
-  ALL_SALON_CATEGORIES,
-  ALL_SALON_STATUSES,
-  SALON_CATEGORY_LABELS,
-  type SalonsQuery,
-} from "@/lib/shared";
+import { useSalonApplications, useSalonCategories } from "@/hooks/use-platform-admin";
+import { ALL_SALON_STATUSES, salonCategoryLabel, type SalonsQuery } from "@/lib/shared";
 import { cn } from "@/lib/utils";
 import { ChevronDown, Eye, Search } from "lucide-react";
 import Link from "next/link";
@@ -59,6 +54,12 @@ export default function SalonApplicationsPage() {
   };
 
   const { data, isLoading, isError } = useSalonApplications(query);
+  const { data: categories } = useSalonCategories();
+  const categoryLabelFor = (slug: string) =>
+    salonCategoryLabel(
+      slug,
+      Object.fromEntries((categories ?? []).map((c) => [c.slug, c.label])),
+    );
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -108,9 +109,9 @@ export default function SalonApplicationsPage() {
               className={cn(selectClasses, "pr-9")}
             >
               <option value="">All categories</option>
-              {ALL_SALON_CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {SALON_CATEGORY_LABELS[c]}
+              {(categories ?? []).map((c) => (
+                <option key={c.slug} value={c.slug}>
+                  {c.label}
                 </option>
               ))}
             </select>
@@ -165,7 +166,7 @@ export default function SalonApplicationsPage() {
                       <div className="text-xs text-neutral-400">{salon.ownerPhone}</div>
                     </td>
                     <td className="px-4 py-3 text-neutral-600">
-                      {SALON_CATEGORY_LABELS[salon.category]}
+                      {categoryLabelFor(salon.category)}
                     </td>
                     <td className="px-4 py-3 text-neutral-600">{salon.district}</td>
                     <td className="px-4 py-3 text-neutral-500">

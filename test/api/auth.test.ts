@@ -1,6 +1,7 @@
 import { COLLECTIONS, ROLES, SALON_STATUS, VERIFICATION_STATUS } from "@/lib/shared";
 import { beforeEach, describe, expect, it } from "vitest";
 import { callRoute } from "../helpers/callRoute";
+import { seedSalonCategory } from "../helpers/seed";
 import { fakeStore } from "../mocks/fakeFirestore";
 import { resetRateLimits } from "@/server/http/rateLimit";
 
@@ -32,7 +33,12 @@ async function register(body: unknown) {
 // The limiter counts across a whole module-scoped window, so without this
 // the later cases in a file would start hitting 429 instead of the status
 // they assert.
-beforeEach(() => resetRateLimits());
+beforeEach(() => {
+  resetRateLimits();
+  // Registration validates the chosen category against the salonCategories
+  // collection, so the one the payload uses has to exist.
+  seedSalonCategory("hair_salon", { label: "Hair Salon" });
+});
 
 describe("POST /api/auth/register-salon-owner", () => {
   it("creates pending owner and salon records", async () => {

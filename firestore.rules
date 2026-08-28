@@ -18,6 +18,9 @@ service cloud.firestore {
     match /salons/{salonId} {
       allow read, write: if false;
     }
+    match /salonCategories/{categoryId} {
+      allow read, write: if false;
+    }
     match /salonVerificationHistory/{historyId} {
       allow read, write: if false;
     }

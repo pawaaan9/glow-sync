@@ -93,6 +93,16 @@ export interface SalonDocument {
   approvedBy: string | null;
 }
 
+export interface SalonCategoryDocument {
+  id: string;
+  slug: string;
+  label: string;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: TimestampField;
+  updatedAt: TimestampField;
+}
+
 export interface SalonVerificationHistoryDocument {
   id: string;
   salonId: string;

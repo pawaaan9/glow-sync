@@ -5,7 +5,7 @@ import { SalonCard } from "@/components/salon/SalonCard";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { usePublicFilters, useSalons } from "@/hooks/use-salons";
-import { SALON_CATEGORY_LABELS } from "@/lib/shared";
+import { salonCategoryLabel } from "@/lib/shared";
 import type { SalonSearchFilters } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -166,7 +166,7 @@ export function SearchPageClient({
                 )}
               >
                 <CategoryIcon category={c} className="size-3.5" />
-                {SALON_CATEGORY_LABELS[c]}
+                {salonCategoryLabel(c)}
               </button>
             ))}
 

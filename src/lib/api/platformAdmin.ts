@@ -1,8 +1,11 @@
-import { apiGet, apiPatch } from "@/lib/api/http";
+import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api/http";
 import type {
   AuditLogDTO,
   PaginatedResult,
   PlatformAdminDashboardDTO,
+  SalonCategoryCreateInput,
+  SalonCategoryDTO,
+  SalonCategoryUpdateInput,
   SalonDTO,
   SalonsQuery,
   SalonVerificationHistoryDTO,
@@ -71,5 +74,26 @@ export function listVerificationHistory(query: Record<string, string | number | 
   return apiGet<PaginatedResult<SalonVerificationHistoryDTO>>(
     "/api/platform-admin/verification-history",
     query,
+  );
+}
+
+export function listSalonCategories() {
+  return apiGet<SalonCategoryDTO[]>("/api/platform-admin/categories");
+}
+
+export function createSalonCategory(input: SalonCategoryCreateInput) {
+  return apiPost<SalonCategoryDTO>("/api/platform-admin/categories", input);
+}
+
+export function updateSalonCategory(categoryId: string, input: SalonCategoryUpdateInput) {
+  return apiPatch<SalonCategoryDTO>(
+    `/api/platform-admin/categories/${encodeURIComponent(categoryId)}`,
+    input,
+  );
+}
+
+export function deleteSalonCategory(categoryId: string) {
+  return apiDelete<{ deleted: true }>(
+    `/api/platform-admin/categories/${encodeURIComponent(categoryId)}`,
   );
 }

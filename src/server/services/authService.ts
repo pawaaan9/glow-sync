@@ -14,6 +14,7 @@ import { ApiError } from "@/server/lib/apiError";
 import { createAuditLog } from "@/server/lib/auditLog";
 import { createNotification } from "@/server/lib/notifications";
 import { generateUniqueSalonSlug } from "@/server/lib/slug";
+import { assertActiveSalonCategory } from "@/server/services/salonCategoryService";
 import { createVerificationHistory } from "@/server/lib/verificationHistory";
 import type { SalonDocument, UserDocument } from "@/server/types/firestore";
 
@@ -38,6 +39,9 @@ export async function registerSalonOwner(
   input: RegisterSalonOwnerInput,
 ): Promise<RegisterSalonOwnerResult> {
   const { owner, salon } = input;
+
+  // Reject a stale or tampered category slug before creating anything.
+  await assertActiveSalonCategory(salon.category);
 
   let uid: string;
   try {

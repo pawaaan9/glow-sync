@@ -103,6 +103,22 @@ export function seedSalonDoc(
   });
 }
 
+/** Seeds an active salon category (doc id = slug), as the categories admin would create. */
+export function seedSalonCategory(
+  slug: string,
+  overrides: { label?: string; isActive?: boolean; sortOrder?: number } = {},
+) {
+  fakeStore.setDoc(COLLECTIONS.SALON_CATEGORIES, slug, {
+    id: slug,
+    slug,
+    label: overrides.label ?? slug,
+    isActive: overrides.isActive ?? true,
+    sortOrder: overrides.sortOrder ?? 0,
+    createdAt: makeTimestamp(new Date()),
+    updatedAt: makeTimestamp(new Date()),
+  });
+}
+
 /** Seeds a fully wired platform_admin: auth user + superAdmins/ doc. Returns the bearer token. */
 export function seedPlatformAdmin(email = `admin-${nextId("e")}@example.com`) {
   const uid = seedAuthUser(email);

@@ -14,6 +14,7 @@ import { ApiError } from "@/server/lib/apiError";
 import { createAuditLog } from "@/server/lib/auditLog";
 import { createNotification } from "@/server/lib/notifications";
 import { createVerificationHistory } from "@/server/lib/verificationHistory";
+import { assertActiveSalonCategory } from "@/server/services/salonCategoryService";
 import type { SalonDocument, UserDocument } from "@/server/types/firestore";
 
 async function loadSalonAndOwner(tx: FirebaseFirestore.Transaction, salonId: string) {
@@ -310,6 +311,10 @@ export async function resubmitSalonApplication(
   ownerUid: string,
   input: ResubmitSalonApplicationInput,
 ) {
+  if (input.salon.category !== undefined) {
+    await assertActiveSalonCategory(input.salon.category);
+  }
+
   await db.runTransaction(async (tx) => {
     const { salonRef, salon, ownerRef, owner } = await loadSalonAndOwner(tx, salonId);
 

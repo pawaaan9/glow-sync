@@ -17,6 +17,7 @@ import {
   ShieldOff,
   Sparkles,
   Store,
+  Tags,
   Users,
   X,
 } from "lucide-react";
@@ -64,6 +65,10 @@ const navGroups: { label: string; items: NavItem[] }[] = [
       { href: "/platform-admin/salons", label: "Salons", icon: Store, exact: true },
       { href: "/platform-admin/salon-owners", label: "Salon owners", icon: Users },
     ],
+  },
+  {
+    label: "Catalogue",
+    items: [{ href: "/platform-admin/categories", label: "Categories", icon: Tags }],
   },
   {
     label: "Records",

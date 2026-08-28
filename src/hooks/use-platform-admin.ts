@@ -1,17 +1,25 @@
 import {
   approveSalonApplication,
+  createSalonCategory,
+  deleteSalonCategory,
   getPlatformAdminDashboard,
   getSalonApplication,
   listAuditLogs,
   listSalonApplications,
+  listSalonCategories,
   listSalonOwners,
   listSalons,
   listVerificationHistory,
   rejectSalonApplication,
   reactivateSalon,
   suspendSalon,
+  updateSalonCategory,
 } from "@/lib/api/platformAdmin";
-import type { SalonsQuery } from "@/lib/shared";
+import type {
+  SalonCategoryCreateInput,
+  SalonCategoryUpdateInput,
+  SalonsQuery,
+} from "@/lib/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function usePlatformAdminDashboard() {
@@ -64,9 +72,41 @@ export function useVerificationHistory(query: Record<string, string | number | u
   });
 }
 
+export function useSalonCategories() {
+  return useQuery({
+    queryKey: ["platform-admin", "categories"],
+    queryFn: listSalonCategories,
+  });
+}
+
 function useInvalidatePlatformAdmin() {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: ["platform-admin"] });
+}
+
+export function useCreateSalonCategory() {
+  const invalidate = useInvalidatePlatformAdmin();
+  return useMutation({
+    mutationFn: (input: SalonCategoryCreateInput) => createSalonCategory(input),
+    onSuccess: invalidate,
+  });
+}
+
+export function useUpdateSalonCategory() {
+  const invalidate = useInvalidatePlatformAdmin();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: SalonCategoryUpdateInput }) =>
+      updateSalonCategory(id, input),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteSalonCategory() {
+  const invalidate = useInvalidatePlatformAdmin();
+  return useMutation({
+    mutationFn: (id: string) => deleteSalonCategory(id),
+    onSuccess: invalidate,
+  });
 }
 
 export function useApproveSalonApplication() {

@@ -3,7 +3,7 @@
 import { CategoryIcon } from "@/components/salon/CategoryIcon";
 import { Button } from "@/components/ui/Button";
 import { usePublicFilters } from "@/hooks/use-salons";
-import { SALON_CATEGORY_LABELS } from "@/lib/shared";
+import { salonCategoryLabel } from "@/lib/shared";
 import { cn } from "@/lib/utils";
 import { ArrowRight, ChevronDown, Menu, Search, Sparkles, X } from "lucide-react";
 import Image from "next/image";
@@ -116,7 +116,7 @@ export function Navbar() {
                                   <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-rose-100 to-purple-100 text-rose-600 transition-transform duration-300 group-hover/cat:scale-110">
                                     <CategoryIcon category={c} className="size-4" />
                                   </span>
-                                  {SALON_CATEGORY_LABELS[c]}
+                                  {salonCategoryLabel(c)}
                                 </Link>
                               ))}
                             </div>
@@ -224,7 +224,7 @@ export function Navbar() {
                     className="flex flex-col items-center gap-1.5 rounded-2xl border border-neutral-100 py-3 text-center text-xs font-medium text-neutral-600 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
                   >
                     <CategoryIcon category={c} className="size-4 text-rose-500" />
-                    {SALON_CATEGORY_LABELS[c]}
+                    {salonCategoryLabel(c)}
                   </Link>
                 ))}
               </div>

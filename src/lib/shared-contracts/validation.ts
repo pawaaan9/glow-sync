@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { ALL_SALON_CATEGORIES } from "./salon-category";
 import { ALL_SALON_STATUSES } from "./salon-status";
 import { ALL_BOOKING_SOURCES, ALL_BOOKING_STATUSES } from "./booking-status";
 import { DAYS_OF_WEEK } from "./working-hours";
@@ -33,7 +32,11 @@ export const salonInfoSchema = z.object({
   district: z.string().trim().min(2, "Enter the district").max(80),
   businessRegistrationNumber: z.string().trim().max(60).optional(),
   description: z.string().trim().min(10, "Add a short description").max(1000),
-  category: z.enum(ALL_SALON_CATEGORIES, { error: "Choose a salon category" }),
+  category: z
+    .string({ error: "Choose a salon category" })
+    .trim()
+    .min(1, "Choose a salon category")
+    .max(60),
   numberOfStaff: z.coerce.number().int().min(1).max(500),
 });
 
@@ -70,7 +73,7 @@ export const salonsQuerySchema = paginationSchema.extend({
   status: z.enum(ALL_SALON_STATUSES).optional(),
   search: z.string().trim().max(120).optional(),
   district: z.string().trim().max(80).optional(),
-  category: z.enum(ALL_SALON_CATEGORIES).optional(),
+  category: z.string().trim().max(60).optional(),
   dateFrom: z.iso.date().optional(),
   dateTo: z.iso.date().optional(),
   sortBy: z.enum(["createdAt", "name"]).default("createdAt"),
@@ -98,6 +101,41 @@ export const verificationHistoryQuerySchema = paginationSchema.extend({
 });
 
 export type VerificationHistoryQuery = z.infer<typeof verificationHistoryQuerySchema>;
+
+/* ------------------------------------------------------------------ */
+/* Platform-admin: salon categories                                    */
+/* ------------------------------------------------------------------ */
+
+const categoryLabelSchema = z
+  .string()
+  .trim()
+  .min(2, "Enter a category name of at least 2 characters")
+  .max(60, "Keep the category name under 60 characters");
+
+export const salonCategoryCreateSchema = z.object({
+  label: categoryLabelSchema,
+  /** Optional: derived from the label (slugified) when omitted. */
+  slug: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .regex(/^[a-z0-9]+(?:_[a-z0-9]+)*$/, "Use lowercase letters, numbers, and underscores only")
+    .max(60)
+    .optional(),
+  isActive: z.boolean().default(true),
+});
+
+export type SalonCategoryCreateInput = z.infer<typeof salonCategoryCreateSchema>;
+
+export const salonCategoryUpdateSchema = z
+  .object({
+    label: categoryLabelSchema.optional(),
+    isActive: z.boolean().optional(),
+    sortOrder: z.coerce.number().int().min(0).max(9999).optional(),
+  })
+  .refine((v) => Object.keys(v).length > 0, { message: "Provide at least one field to update" });
+
+export type SalonCategoryUpdateInput = z.infer<typeof salonCategoryUpdateSchema>;
 
 /* ------------------------------------------------------------------ */
 /* Salon-owner panel                                                   */

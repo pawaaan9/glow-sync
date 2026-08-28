@@ -3,18 +3,25 @@
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useResubmitApplication } from "@/hooks/use-salon-owner";
+import { usePublicSalonCategories } from "@/hooks/use-salons";
 import {
-  ALL_SALON_CATEGORIES,
-  SALON_CATEGORY_LABELS,
   resubmitSalonApplicationSchema,
+  salonCategoryLabel,
   type SalonDTO,
 } from "@/lib/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Send } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-export function ResubmitForm({ salon, onDone }: { salon: SalonDTO; onDone: () => void }) {
+export function ResubmitForm({ salon, onDone }: Readonly<{ salon: SalonDTO; onDone: () => void }>) {
   const resubmit = useResubmitApplication();
+  const { data: categories } = usePublicSalonCategories();
+
+  const activeOptions = (categories ?? []).map((c) => ({ value: c.slug, label: c.label }));
+  // Keep the salon's current category selectable even if it was since deactivated.
+  const categoryOptions = activeOptions.some((o) => o.value === salon.category)
+    ? activeOptions
+    : [{ value: salon.category, label: salonCategoryLabel(salon.category) }, ...activeOptions];
 
   const {
     register,
@@ -82,9 +89,9 @@ export function ResubmitForm({ salon, onDone }: { salon: SalonDTO; onDone: () =>
             {...register("salon.category")}
             className="h-12 w-full rounded-2xl border border-neutral-200 bg-white px-4 text-sm text-ink outline-none focus:border-rose-400 focus:ring-4 focus:ring-rose-100"
           >
-            {ALL_SALON_CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {SALON_CATEGORY_LABELS[c]}
+            {categoryOptions.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
               </option>
             ))}
           </select>
